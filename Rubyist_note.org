@@ -1,0 +1,2211 @@
+* Welcome to the Ruby's World
+** How to name the Value
+局部变量以小写字母或者下划线开头,包括字母,下划线和数字。
+实例变量为独立的对象存储信息,通常以@+局部变量名命名。
+类变量在每一个类层级上存储信息,以@@+局部变量名命名。
+全局变量通过$符号辩认,通常是预定义了的。
+常量以大写字母开头,命名多名词常量时,可以使用驼峰命名法或者下划线分隔且所有大写字母大写的方式。
+
+| 变量类型 | Ruby 规范     | 非规范                                  |
+|----------+--------------+-----------------------------------------|
+| 局部变量 | first_name   | FirstName, _firstName,__firstName,name1 |
+| 实例变量 | @first_name  | @First_name, @firstName, @name1         |
+| 类变量   | @@first_name | @@Fisrt_name, @@firstName, @@name1      |
+| 全局变量 | @@first_name | $first_name, $firstName, $name1         |
+
+** irb
+*** $irb --simple-prompt 减少 irb 模式中乱七八糟的玩意儿
+
+*** $irb --RbConfig::CONFIG["str"] 可以查看某些 Ruby 的默认配置
+**** rubylibdir Ruby 标准库
+     /usr/share/ruby
+**** bindir     Ruby 命令行工具
+     /usr/bin/
+**** archdir    特定架构的括展和库文件 已经编译为二进制文件
+     /usr/lib64/ruby
+**** sitedir    用户自己的第三方库括展和库文件
+     /usr/local/share/ruby/site_ruby
+**** vendordir  第三方括展或者库文件
+     /usr/share/ruby/vendor_ruby
+**** sitelibdir 用户自己的 Ruby 语言扩展（Ruby 编写）
+     /user/local/share/ruby/site_ruby
+**** sitearchdir 用户自己的 Ruby 语言扩展（C 编写）
+     /usr/local/lib64/ruby/site_ruby
+** Ruby 扩展和编程库
+*** require 和 load 的区别
+    require 就算调用多次也不会重新加载已经加载过的文件。
+    require 比起 load 来更加抽象，严格来说是不能请求一个文件，而只能请求一个功能。
+*** 默认加载路经
+    $ ruby -e 'puts $:'
+    /usr/share/gems/gems/did_you_mean-1.0.0/lib
+    /usr/local/share/ruby/site_ruby/
+    /usr/local/lib64/ruby/site_ruby/
+    /usr/share/ruby/vendor_ruby
+    /usr/lib64/ruby/vendor_ruby
+    /usr/share/rubygems
+    /usr/share/ruby
+    /usr/lib64/
+    每当加载一个文件，Ruby 将会自上而下的在 每一个子目录中搜索。
+*** require_relative
+    require_relative 是第三种加载文件的方式，这个指令会搜索相对于所在文件的目录来加载功能。
+
+** Ruby 工具
+*** ruby 解释器
+| 参数      | 描述                     |
+|-----------+--------------------------|
+| -c        | 不执行程序只检查程序文件 |
+| -w        | 执行时给出警告信息       |
+| -e        | 执行在命令中引号内的代码 |
+| -l        | 行模式，每一行输出后换行 |
+| -rname    | 请求指定命字的扩展       |
+| -v        | 版本信息 运行代码        |
+| --version | 版本信息 并不运行代码    |
+| -h        | 显示解释器开关的位置     |
+*** ri and RDoc
+    不知为何，我的电脑上无效
+*** rake
+    与 make 相似的特殊任务管理工具，读取和执行 Rakeflle 里的代码。但是使用 ruby 编写
+*** gem
+    RubyGems 包括了打包，安装 Ruby 库和应用程序的方法。国内使用 Gem 需要使用 RubyChina 的镜象。
+* 对象，方法和局部变量
+** Ruby 的对象
+   Ruby 的每一个对象都是一个样例或者既定类的实例以及独立对象的行为。设计面向对象软件的问题大部分是如何让对象工作的问题：它们该做什么，它们如何彼此交互，它们的数量有多少。
+*** 创建一个对象
+    obj ＝ Object.new
+*** 定义对象的行为
+    def obj.talk
+      puts "I am a object"
+    end
+    + 点是一个信息发送的运算符号。信息位于点的右边，被发送给位于左边的对象或者接收者。
+    + 接收者通常使用一个变量来表示一个对象，但是一个接收者也可以表示为文法上的对象架构，如引号内的字符串。
+    + 实践中，信息发送时几乎都是使用方法的命称。
+*** 方法的返回值
+    每个方法的调用都会返回一个值。
+    正常情况下返回这个方法中最后一个语句的返回值。
+    也可以用 return 显式的返回这个值。
+** 对象的原生性行为
+   查看原生方法的列表，可以调用 methods 方法。
+*** object_id
+    Ruby 中每一个对象都有他自己的和他唯一关联的 ID 编号。可以通过调用 object_id 方法查看。
+    既使两个字符串包含相同的内容，它们仍然不是相同的对象，这看起来就象是两本书的两个副本：包含相同的内容，却不是同一个事物。
+*** respond_to?
+    可以用来询问对象能否响应的任何信息。
+    respond_to?是自省或者反射的一个例子，可以在程序运行期间进行状态检查。
+*** send
+    可以利用 send 来调用指定的方法
+    str = gets
+    class_name.send(str)
+    就可以调用 class_name 的指定方法，避免大量的 if 语句。
+** 方法的参数
+   方法可以携带 0 个或者多个参数，也可以使用可变参数数量。
+*** 可变参数
+    在单独的参数名前使用*既可。可以同时使用必选参数和可选参数，对其进行微调。
+    可变参数作为一个 list 来被接收。
+*** 参数的默认值
+    当一个参数设定默认值的时候，会使其在没有提供参数的情况下，与参数对应的变量将会接收默认值。默认值使用等号和一个值来表示。
+*** 参数列表的错误使用方式
+    + 不可以将可选参数放在任何默认参数的左边。
+    + 参数列表中不允许多于一个的可变参数。
+** 局部变量和变量赋值
+*** 变量赋值
+    在 Ruby 中，变量没有持有对象的值，而是变量包含了一对字符串对象的引用。
+    变量持有对象的引用这一事实暗含了改变对象的操作，例如使用 replace
+    给变量赋值的时候，变量被清理干净，新赋值完成。
+    如果需要保护发送给方法的对象，防止它在方法内部被改变，可以用 dup 方法复制一个对象，也可以用 freeze 冻结一个对象。注意，Ruby 中没有对应的解除冻结的方法。冻结是永久的。
+* 使用类组织对象
+** 类和继承
+*** 覆盖方法
+    类中同一个方法名定义多次，使用最后定义的一次，新版本总是覆盖旧版本。
+*** 类的重开
+    当声明了一个类后，又要添加方法时，可以重开这个类，和声明一样，重新定义新的方法。
+    类的重开可以给标准库的自带类添加方法，甚至覆盖方法，都是覆盖方法时要注意程序的其它地方可能依赖于老方法，使用尽量不要使用。
+** 实例变量和对象状态
+   + 设置或者重置对象的状态
+   + 回读状态，实例变量使得独立的对象可以被记住。
+   + 实例变量总是以一个@开头。
+   + 实例变量仅仅在它归属的对象内部可见。
+   + 一个实例变量在类的其中一个方法内初始化，然后可以在这个类的任何方法中使用。
+** 使用状态初始化对象
+*** initialize 
+    可以定义一个 initialize 方法，在每次新建一个类的时候，都会调用此方法。
+    initialize 方法可以不必匹配实例变量的名称，方法和参数。
+** setter 方法
+   set_value 方法用来改变实例变量的值，没什么好讲的。
+   同时可以定义＝方法来实现赋值。如下：
+   def price=(amount)
+     @price = amound
+   end 
+   可以实现 class_name.price = amount 来改变 price 的值。
+   这样等号方法使它看起来像“赋值给一个事物”一样。
+   不要傻逼兮兮的滥用 setter 和 getter。
+** 属性和 attr_方法体系
+   属性是对象的特性，它的值可以由对象读取或者写入，之前的 price=方法被描述为一个属性写入器，而 get_方法都是属性提取器。
+   Ruby 用属性写入器和属性提取器方法环绕的方式，实现了对实例变量的包装。
+   但是语言层面，并没有分离属性的构造。
+   可以使用 attr_*方法实现读取器和写入器的功能。
+   例如：
+     attr_reader :venue, :data, :price
+     attr_writer :price
+   或者采用 attr_accessor 方法，则同时可以得到读取器和写入器的功能，犹如可以直接 access（接触）到实例变量一样。
+   而 attr :price, true 与 attr_accessor 相同
+   attr :price 与 attr_reader 相同，之间的区比就在后一个参数 true 之上。
+** 继承和 Ruby 类层级关系
+   继承是两个类之间，向下的链接关系，
+   class Magazine < Publication; end
+   指明了 Magazine 是 Publication 的子类。
+   在 Ruby 中，在程序的某一个位置，一个给定的对象能做和不能做什么，取决于对象本身，对象从它的类，独立方法或者单例方法中获得行为，也可以从它的类的祖先中获的。
+   在 Ruby 中，是不允许多继承的。
+*** Object 类
+   Object 类是继承图谱中最顶级的类，每一个类都是 Object 的子类，任何类向上追溯足够远的距离，都会遇到 Object 类。
+*** BasicObject 类
+   Object 继承自 BasicObject 类，但是 BasicObject 只有最基本的方法，甚至没有 inspect 方法。
+   BasicObject 类仅有 8 个方法。
+   Object 类有 55 个方法。这个数字随着 Ruby 版本的变化而变化。
+** 类也是对象，因此类也可以做为信息的接收者。
+   每个如同 Ticket Object BasicObject 这样的类，都是名为 Class 的类的实例。
+   每个对象的内部都记录着它是哪个 Class 的实例。
+   Class 的父类是 Module，所以它可以访问定义在 Module 中的实例方法。
+** 单例方法
+   单例方法直接定义在类对象之上，通常涉及一个在类之上的类方法。
+   类方法的概念是发送给类对象而不是类的实例。
+   例如 ticket = Ticket.new
+   则单例方法则是发送给 ticket 这个类，而不是 Ticket
+   而类方法则是平等的发送给 Ticket。
+   + 类是对象
+   + 类的实例也是对象
+   + 类对象有它自己的方法，自己的状态和自己的唯一标示，它不会把这些信息与它的实例共享。
+** 常量
+   常量以大写字母命名。
+   在类中定义一个常量可以在类的实例方法和类方法中引用。
+   在已经赋值过的常量上执行一个操作是可行的，但是会获取一个警告。
+
+* 模块和程序组织
+  和类一样，模块是一组方法和常量的集合，和类不同，模块没有实例，取而代之的是可以将特殊模块的功能添加到一个类或者指定对象之中。
+  Class 是 Module 类的一个子类，因此每一个类对象也是一个模块对象。
+  可以说模块是更为基础的架构，而类是特殊化的。
+** 模块的编写
+   编写一个模块和编写一个类差不多：
+   module MyFirstModule
+     def say_hello
+       puts "Hello"
+     end
+   end 
+   模块没有实例，它使用的是 Mix in 到类的方式，既可以使用 include 方法，也可以使用 prepend 方法。
+   混和模块的结果是类的实例可以访问定义在模块中的实例方法。
+   class ModuleTester
+     include MyFirstModule
+   end
+   my = ModuleTester.new
+   my.say_hello
+   类继承和模块混合最重要的不同在于可以混合多个模块，而类是不可以多继承的。
+   一但需要为类的实例增加大量行为，并且不想要把它们存储在类的超类和祖先中，便可以使用模块在更细的粒度上组织代码。
+*** 用模块封装“栈特性”
+    栈的性质，先进先出。
+    #+BEGIN_SRC ruby
+    module Stacklike
+      def stack
+        @stack || = []
+      end
+      
+      def add_to_stack(obj)
+        stack.push(obj)
+      end
+
+      def take_from_stack
+        stack.pop
+      end
+    #+END_SRC
+    此处注意，||=运算符表示如果 stack 不为空，则为自身，如果为 nil，则赋值[]
+    @stack 可以被 stack 的方法访问到。
+    模块没有实例，所以不可以:
+    Stacklike.new
+    正解:
+    #+BEGIN_SRC ruby
+    require_relative "stacklike"
+    class Stack
+      include Stacklike
+    end
+    s = Stack.new
+    s.add_to_stack("Item one")
+    s.add_to_stack("Item two")
+    puts s.stack
+    take = s.take_from_stack
+    puts taken
+    puts s.stack
+    #+END_SRC
+    _注意，当使用 require 或者 load 的时候，需要把请求或者加载的项目放在引号中，但是使用 include 的时候则不是这样，因为 require 和 load 使用字符串作为它们的方法传参，而 include 使用常量形式的模块名称。_
+    _这是因为 require 会定位和加载磁盘文件，而 include 和 prepend 执行的是程序空间，其操作是在内存完成而非文件中。_
+** 模块，类和方法查找
+   如果混合了多个模块，如果模块中定义的方法重名，对象会选择哪一个方法呢？
+   #+BEGIN_SRC ruby
+   module M
+     def report
+       puts "report method in the module M"
+     end
+   end
+   
+   class C
+     include M
+   end
+   
+   class D < C
+   end
+   obj = D.new
+   obj.report
+   #+END_SRC
+   可以访问一个方法，或像是拥有这个方法，是一个模糊的概念。
+*** 方法查找的基本原理
+    从底层继承树往上找，如果类内有模块，则查找模块，如果没有，则继续向上找，如果最后没有找到，则会发生一个错误，错误条件由一个特殊的方法 method_missing 触发。
+    class Object 中混合了 module Kernel 这个模块，Kernel 中定义了大多数 Ruby 对象的基础方法。
+*** 同名方法的多次定义
+    在任一指定的时间内，针对每一个类和模块仅仅能拥有一个方法，如果同时有多个，则会忘记除了最后一个之外的其它方法。
+    假如对象的查找路径中包含两个或者多个同名的方法， _*第一次遇见的就是赢家*_
+    #+BEGIN_SRC ruby
+    module InterestBearing
+      def calculate_interest
+        puts "Placeholder! We're in module InterestBearing."
+      end
+    end
+
+    class BankAccount
+      include InterestBearing
+      def calculate_interest
+        puts "Placeholder! We're in class BankAccount."
+        puts "And we're overriding the calculate_interest method..."
+        puts "which was defined in the InterestBearing module."
+      end
+    end
+
+    account = BankAccount.new
+    account.calculate_interest
+    #+END_SRC    
+    一个对象在其查找路经中有两个同名方法的另一种情况是当一个类混合了两个或者多个模块时，将搜索到方法的多个实现，这样的例子中，按照包含的逆序查找模块。最新混合在类中的模块将被找到。
+    另外还有一个例子
+    #+BEGIN_SRC ruby
+    module M
+      def report
+        puts "'report' method in module M"
+      end
+    end
+
+    module N
+      def report
+        puts "'report' method in module N"
+      end
+    end
+
+    class C
+      include M
+      include N
+      include M
+    end
+    #+END_SRC
+    _可能会认为这里会使用 M 里的 report 方法，但是因为重复包含一个模块是无效的，所以第二个 M 被忽略掉，所以这里使用的还是 N 里的 report 方法_
+*** prepend 的工作方法
+    大部分与 include 一样，但是如果 prepend 了一个模块，则会首先在模块中查找，然后再在类中查找。
+*** 查找方法的规则
+    + 被前置在它所属的类中的模块，按照与前置相反的顺序。
+    + 它的类中
+    + 被包含在它所属类中的模块，按照与包含相反的顺序。
+    + 前置到它的超类中的模块
+    + 它所属的超类
+    + 包含在它所属超类中的模块
+    + 同样的，达到 Object 和 BasicObject。
+*** 使用 super 方法向上追溯方法路径
+    在方法定义的主体中，可以使用 super 关键字，在当前执行的方法查找路径的方法中，跳转到下一个最高级的定义。
+    #+BEGIN_SRC ruby
+    class Bicyle
+      attr_reader: :gears, :wheels, :seats
+      def initialize(gears = 1)
+         @wheels = 2
+         @seats = 1
+         @gears = gears
+      end
+    end
+
+    class Tandem < Bicyle
+      def initialize(gears)
+        super
+        @seats = 2
+      end
+    end
+    #+END_SRC
+    super 触发了前面 Bicyle 中定义的 initialize 方法。
+    当调用 super 时，并没有显式转发 initialize 中的传参 gears。
+    super 传参方式如下：
+    + 无参数列表：super 指定转发被调用的方法的实参。
+    + 空参数列表调用：super 不传递参数到更高一级调用中。
+    + 指定参数的调用 super(a, b, c)：super 精确转发这些参数。
+** method_missing 方法
+   kernel 提供了实例方法 method_missing。在任何时候，如果对象接收到它不能响应的信息时，它就执行。
+   当覆盖 methdo_missing 方法时。需要模仿原始方法的签名。
+   #+BEGIN_SRC ruby
+   >> def object_name.method_missing(m, *args)
+   >>   puts "XXX"
+   >> end
+   #+END_SRC
+   下面是一个例子
+   #+BEGIN_SRC ruby
+    class Person
+      PEOPLE = []
+      attr_reader :name, :hobbies, :friends
+      def initialize(name)
+        @name = name
+        @hobbies = []
+        @friends = []
+        PEOPLE << self
+      end
+      def has_hobby(hobby)
+        @hobbies << hobby
+      end
+      def has_friend(friend)
+        @friends << friend
+      end
+      def self.method_missing(m, *args)
+        method = m.to_s
+        if method.start_with?("all_with_")
+          attr = method[9..-1]
+          if self.public_method_defined?(attr)
+            PEOPLE.find_all do |person|
+              person.send(attr).include?(args[0])
+            end
+          else
+            rails ArgumentError, "Can't find #{attr}"
+          end
+        else
+          super
+        end
+      end
+    end
+   #+END_SRC
+** 类和模块的设计和命名
+   混合和继承，需要考虑在每一种情况下如何平衡的使用它们。
+*** 混合和继承
+    + 模块没有实例，实体和事物最好是用类进行建模，实体和事物的特征属性最好封装在模块种。
+    + 类仅仅能有一个超类，但是可以混合需要的足够多的模块。
+*** 内嵌模块和类。
+    可以在模块中定义嵌入的类。
+    #+BEGIN_SRC ruby
+    module Tools
+      class Hammer
+      end
+    end
+    h = Tools::Hammer.new
+    #+END_SRC
+    这样可以将模块当作命名空间来使用，避免冲突。
+* 默认对象，作用域和可见性
+** 理解 self，当前对象或默认对象
+   当前对象 self 有且只有一个。
+   要找到哪一个对象是 self，必须理解上下文。
+   + self 在顶层，默认的对象是 main，main 是一个特殊术语，表明默认 self 对象指向它本身。不能用 main 来引用它。若想将其挪作它用，需要在顶层中给它分配一个变量。
+   + self 在类内，默认的对象是类对象本身。
+   + self 在模块内，默认的对象是模块对象本身。
+   #+BEGIN_SRC ruby
+   class C
+     puts "Just started class C:"
+     puts self
+     module M
+       puts "Nested module C::M:"
+       puts self
+     end
+     puts "Back in the outer level of C:"
+     puts self
+   end
+   #+END_SRC
+   + 方法定义：
+     + 顶层，方法被 调用时，无论怎样，对象都是 self，顶层的方法作为私有方法对所有对象可用。
+     + 在类的实例方法中定义：self 表示类的一个实例
+     #+BEGIN_SRC ruby
+     class C
+       def x 
+         puts "Class C, method x:"
+         puts self
+       end
+     end
+     
+     c = C.new
+     c.x
+     #+END_SRC
+     + 在模块的实例方法中定义：self 表示继承了 m 的独立对象，或者混合了 m 的类的实例
+     + 特殊对象上的单例方法：self 表示特殊对象本身
+     #+BEGIN_SRC ruby
+     obj = Object.new
+     def obj.show_me
+       puts "Inside singleton method show_me of #{self}"
+     end
+     
+     obj.show_me
+     puts "Back from call to show_me by #{obj}"
+     #+END_SRC
+*** self 作为信息的默认接收者，可以省略。
+    最常见的省略即是类中对实例方法的定义。
+*** 通过 self 解析实例变量
+    先看一个代码：
+    #+BEGIN_SRC ruby
+    class C
+      def show_var
+        @v = "I am an instance variable initialized to string."
+        puts @v
+      end
+    @v = "Instance varialbes can appear anywhere..."
+    end
+    C.new.show_var
+    #+END_SRC
+    第一个@v 位于 C 的实例方法的定义块内部，所以它的含义不针对单个对象，通常清况是针对 C 的实例：每个 C 的实例都会有一个自己的实例对象@v
+    第二个@v 属于类对象 C。这个场景中，类就是对象。任何对象都可以有它的实例变量。
+** 判定作用域
+*** 全局作用域
+    全局作用域是一个覆盖整个程序的作用域。全局变量享有全局作用域，可以通过$来识别它们，它们在任何地方都可用。
+**** 内置的全局变量：
+     Ruby 解释器启动时会初始化大量的全局变量。这些变量存储在程序的任何地方都会使用的信息。例如$0 包含启动当前运行程序的文件名。$$包含 Ruby 的进程 ID。
+**** 全局变量的利弊
+     可以不用担心作用域，可以通过全局变量在多个类之间共享信息。
+     但是使用全局变量会改变稳定，灵活的程序设计方案。破坏对象这个黑盒子。
+     全局作用域的数据，在根本上，与赋予对象能力，通过发送信息给对象完成事务的面向对象哲学冲突。
+*** 局部作用域
+    + 顶层有自己的局部作用域
+    + 每个类或者模块的定义块，有自己的局部作用域。
+    + 每个定义方法有自己的局部作用域。
+    在物理上彼此接近的局部变量，实际上彼此之间可能完全没有关系。
+**** 局部作用域与 self 的相互作用
+     #+BEGIN_SRC ruby
+     class C
+       def x(value_for_a, recurse = false)
+         a = value_for_a
+         print "Here's the inspect-string for 'self'"
+         p self
+         puts "And here's a:"
+         puts a
+         if recurse
+           puts "Calling myself"
+           x("Second value for a")
+           puts "Back after recursion; here's a:"
+           puts a
+         end
+       end
+     end
+     #+END_SRC
+**** 作用域和常量的解析
+     常量和实例变量之类的有一个区别，那就是它全局可见和可到达，但是需要使用::来指明绝对路径或者相对路径。
+**** 类变量语法，作用域和可见性。
+     类变量以@@作为开头。尽管它名字叫类变量，但是它并不是属于类作用域，而是属于类层级作用域，只是偶尔会有例外。
+     它是跨越类和实例的类变量，提供了一种可以在类和类的实例之间共享数据的存储机制，但是那对其它对象是不可见的。
+     _有继承关系的类，共享同一个类变量_
+***** 类变量的利弊
+      类变量会被太多的对象持有。
+***** 使用类对象的实例变量去为何每个对象的状态
+      #+BEGIN_SRC ruby
+      class Car
+        @@make = []
+        @@cars = {}
+        attr_reader :make
+        
+        def self.total_count
+          @total_count ||= 0
+        end
+        def self.total_count=(n)
+          @total_count = n
+        end
+        
+        def self.add_make(make)
+          unless @@makes.include?(make)
+            @@make << make
+            @@cars[make] = 0
+          end
+        end
+        
+        def initialize(make)
+          if @@makes.include(make)
+            puts "Creating a new #{make}"
+            @make = make
+            @@cars[make] += 1
+            self.class.total_count += 1
+          else
+            rails "No such make: #{make}."
+          end
+        end
+        def make_mates
+          @@cars[self.make]
+        end
+      end
+      #+END_SRC
+** 部署方法访问规则
+   Ruby 存在有 private，public，protcted 三个保护级别。
+   单例方法在不严谨，不正式的感觉上来说是私有的，但是其实它实非私有的。
+   假如声明 class=方法为私有的，但是还是可以通过一个接收者调用它，注意 这个接收者是 self。
+   受保护的方法规则如下：只要默认对象是对象 x 的类，或者祖先类或者子类，就可以在对象 x 上调用受保护的方法。
+   #+BEGIN_SRC ruby
+   class C
+     def initialize(n)
+       @n = n
+     end
+     def n
+       n
+     end
+     def compare(c)
+       if c.n > n
+         puts "The other object's n is bigger."
+       else
+         puts "The other object's n is the same or smaller."
+       end
+     end
+     protected :n
+   end
+   
+   c1 = C.new(100)
+   c2 = C.new(101)
+   c1.compare(c2)
+   #+END_SRC
+   如果 n 不是受保护的话，那么 c1 就访问不到 c2.n 这一方法。
+** 编写和使用顶层方法
+   #+BEGIN_SRC ruby
+   def talk
+     puts "Hello"
+   end
+   #+END_SRC
+   等价于
+   #+BEGIN_SRC ruby
+   class Object
+     private
+     def talk
+       puts "Hello"
+     end
+   end
+   #+END_SRC
+   这些方法不仅可以，而且必须以裸词形式出现。因为它们是私有的，仅仅可以在 self 之上调用它们，以及仅仅通过无明确接收者的方式调用它们。
+   其次，Object 的私有实例方法可以在读者代码的任何位置调用，因为 Object 位于每个类的方法的查找路径中。因此一个顶层的方法总是可用的。
+*** 预定义的顶层方法
+    比如 puts print，都是 kernel 的内置私有方法，Kernel 模块提供了一个拥有必备方法的丰富的工具包。
+    如果想看 Kernel 提供的私有实例方法
+    $ ruby -e 'p Kernel.private_instance_methods.sort
+* 控制流技术
+** 条件代码执行
+*** if 和相关关键字
+**** else 和 elsif
+     没什么好说的。
+**** not 和 !
+     可以和 if 连起来用，比如 if not。
+**** unless 关键字
+     表达与 if not 和 if!相同的语义。
+**** 可以将逻辑修饰符放在语句的结尾处
+     例如 puts "Big number" if x > 100
+     尽量避免在很长的语句后面使用条件修饰符。
+**** if 语句的值
+     if 语句如果成功，整个语句的值无论如何都会是成功分支代码的值。
+     if 语句如果失败，则计算结果等于 nil。
+*** 在条件语句主体和测试中的赋值
+**** 在条件体中的局部赋值
+     不管条件语句里的语句块有没有执行，这个变量的内存空间已经分配，既使没有执行，也会存在 x: nil，而不会导致错误发生。
+**** 条件测试中赋值
+     会正常赋值，但是会导致警告。在 if 内发现=而不是=
+*** case 语句
+    看例子
+    #+BEGIN_SRC ruby
+    print "Exit the program? (yes or no?):"
+    answer = gets.chomp
+    case answer
+    when "yes"
+      puts "Good-bye"
+      exit
+    when "no"
+      puts "OK, we'll continue"
+    else 
+      puts "That's an unknown answer -- assuming you meant 'no'"
+    end
+    puts "Continuing with program."
+    #+END_SRC
+    case 语句以 case 关键字开始，以 when 的代码块贯穿整体，另外还有一个 else 子句，最终以 end 结尾。
+**** when 如何工作
+     每个 Ruby 对象都有一个 case 相等性方法 === 调用这个方法的结果被用于判定一个 when 子句是否匹配。
+     当一个字符串使用===与另一个字符串进行运算时，将会逐一比较它们自身包含的字符，如果可以完美匹配，则返会 true，否则返会 false。
+     只要在任意类中定义===方法，就可以在 case 语句中控制对象的行为。
+   
+    case 语句的优点在于，它没有限制使用===测试对象的内容。
+**** case 语句的返回值
+     如果任一 case when 匹配，则返回这个子句，否则，返回 nil。
+** 使用循环重复执行
+*** loop
+    loop 方法没有携带任何普通参数，只管调用它既可。
+    loop 可写为 loop{}或者 loop end 形式。
+    loop 无条件重复循环，可以使用 break 在循环内部进行控制。
+*** while 和 until
+    while 在指定条件为真的清况下执行一个循环。
+    until 在逻辑上刚好和 while 相反。
+    while 和 until 也可以作为修饰符来使用。
+*** for
+    相对于 C＋＋的 for_each
+** 迭代器和代码块
+   loop 就是一种迭代器，迭代器是 Ruby 的一种方法，它在调用的语法上附加了一个条件，需要提供一个代码块。
+   代码块识方法调用的一部分，代码块不是参数，传递给方法的参数才是参数。
+*** 解析方法调用
+    Ruby 中的每个调用都尊循如下语法
+    + 接收这为对象或者变量
+    + 点
+    + 方法名
+    + 参数列表
+    + 代码块
+    参数列表和代码块是分离的，它们是独立变化的个体。代码块可以放在{}中，也可以放在 do/end 语句之间。
+*** 代码块语法
+    #+BEGIN_SRC ruby
+    array = [1, 2, 3]
+    array.map { |n| n * 10 }
+    array.map do |n| n * 10 end
+    #+END_SRC
+    注意在使用时要分清楚优先级，避免出错。
+*** 实现 times 方法
+    #+BEGIN_SRC ruby
+    class Integer
+      def my_times
+        c = 0
+        until c == self
+          yield(c)
+          c += 1
+        end
+        self
+      end
+    end
+    #+END_SRC
+    代码块会将代码块内的行为自动替代掉 yield。
+*** each 和 map 的区别
+    each 返回它的接收者，map 返回它的新数组。
+    #+BEGIN_SRC ruby
+    class Array
+      def my_map
+        c = 0
+        acc = []
+        until c == size
+          acc << yield(self[c])
+          c += 1
+        end
+        acc
+      end 
+    end 
+    #+END_SRC
+*** 和代码块有关的作用域
+    如果代码块内的变量是从代码块参数列表中的来，则其作用域为本代码块内。
+    如果不是，则它是由外部作用域传进来的，它的作用域于传来的变量实质上是同一个对象。
+    还有一个例子
+    #+BEGIN_SRC ruby
+    def block_local_variable
+      x = "original x"
+      3.times do |i; x|
+        x = i
+        puts "x in the block is now #{x}"
+      end
+      puts "x after the block ended is #{x}"
+    end
+    block_local_variable
+    #+END_SRC
+    这段代码中的 x 被 错误保留名，它不作为代码块的参数，当代码块调用时，它们也没有用于任何的绑定。相当于临时变量。
+    代码块变量有以下三种：
+    + 当代码块被创建时就已经存在的局部变量
+    + 代码块的参数，它们是代码块作用域内的局部变量
+    + 真实的代码块局部变量，它们被列在分号之后且没有过赋值，但是与外部作用域同名的变量会被保护。
+** 错误处理和异常
+*** 引发和捕获异常
+    异常是一种特殊的对象，是 Exception 类或者子类的实例。引发一个异常意味着停止程序的正常执行，然后要么处理问题，要么完全退出。
+*** 使用 rescue 关键字
+    引发异常不意味着程序的终结，可以使用 resue 代码用于挽救程序，它被限定在 begin\end 范围内。
+    #+BEGIN_SRC ruby
+    print "Enter a number"
+    n = gets.to_i
+    begin
+      result = 100 / n
+    resue
+      puts "Your number didn't work, Was it zero?"
+      exit
+    end
+    #+END_SRC
+    方法和代码块提供了一种隐式的 begin\end 上下文。
+    #+BEGIN_SRC ruby
+    def open_user_file
+      print "File to open"
+      filename = gets.chomp
+      fh = File.open(filename)
+      yield fh
+      fh.close
+      resue
+        puts "Couldn't open your file."
+    end
+    #+END_SRC
+*** 显式的引发异常
+    可以使用 raise 加上想要引发的异常的名称，还可以指定第二个参数，它被用作异常引发时的说明信息。
+    #+BEGIN_SRC ruby
+    def fussy_method(x)
+      raise ArgumentError, "I need a number under 10" unless x < 10
+    end
+    fussy_method(20)
+    #+END_SRC
+*** 在 rescue 子句中捕获异常
+    可以使用=>来将异常绑定给一个对象
+    #+BEGIN_SRC ruby
+    begin
+      fussy_method(20)
+    rescue ArgumentError => e
+      puts e.bachtrace
+      puts e.message
+    end
+    #+END_SRC
+*** ensure 子句
+    ensure 子句作为 begin end 的一部分，是无条件执行。无论如何，它的子句都会执行。
+*** 创建自己的异常类
+    通过继承 Exception 类和其子类，可以创建自己的异常类。
+    好处：
+    + 通过给异常类指定的名称，它拥有自描述的功能。
+    + 可以定位异常捕获操作。
+* 内置要点
+** 字面构造器
+   Ruby 有许多内置类，它们大多数都使用 new 进行实例化。
+   但是有些不行，比如 Integer 类。
+| 类           | 字面构造器示例                      |
+|--------------+-----------------------------------|
+| String       | "new string", 'new string'        |
+| Symbol       | :symbol, :"Symbol with spaces"    |
+| Array        | [1, 2, 3, 4]                      |
+| Hash         | {"New york"=>"NY", "Oregon"=>"OR" |
+| Range        | 0..9, 0...10                      |
+| Regexp       | /([a-z]+)/                        |
+| Proc(lambda) | ->(x, y) { x * y }                |
+** 常见的语法搪
+   有时候用户可以用便捷的符号替换常用的 object.method(args)方法调用语法。
+   #+BEGIN_SRC ruby
+   x = 1 + 2
+   x = 1.+(2)
+   #+END_SRC
+   上面两个代码等价。
+   另外，如果定义了一个'+'运算符，则自动获得'+='运算符。
+   假如定义了相关得方法，则会一次性获得许多语法糖。
+| 类型                 | 定义实例        | 名称 | 调用实例       | 语法糖符号   |
+|----------------------+---------------+------+---------------+------------|
+| 算术方法和运算符       | def + (x)     | +    | obj.+(x)      | obj + x    |
+|                      | def -(x)      | -    | obj.-(x)      | obj - x    |
+|                      | def *(x)      | *    | obj.*(x)      | obj * x    |
+|                      | def /(x)      | /    | obj./(x)      | obj / x    |
+|                      | def %(x)      | %    | obj.%(x)      | obj % x    |
+|                      | def **(x)     | **   | obj.**(x)     | obj ** x   |
+|----------------------+---------------+------+---------------+------------|
+| 获取，设置，添加数据    | def [](x)     | []   | obj.[](x)     | obj[x]     |
+|                      | def []=(x, y) | []=  | obj.[]=(x, y) | obj[x] = y |
+|                      | def << (x)    | <<   | ojb.<<(x)     | obj << x   |
+|----------------------+---------------+------+---------------+------------|
+| 比较方法和运算符       | def <=>(x)    | <=>  | obj.<=>(x)    | obj <=> x  |
+|                      | def ==(x)     | ==   | obj.==(x)     | obj == x   |
+|                      | def >(x)      | >    | obj.>(x)      | obj > x    |
+|                      | def <(x)      | <    | obj.<(x)      | obj < x    |
+|                      | def >=(x)     | >=   | obj.>=(x)     | obj >= x   |
+|                      | def <=(x)     | <=   | obj.<=(x)     | obj <= x   |
+|----------------------+---------------+------+---------------+------------|
+| case 运算符           | def ===(x)    | ===  | obj.===(x)    | obj === x  |
+|----------------------+---------------+------+---------------+------------|
+| 位运算符              | def |(x)      | |    | obj.|(x)      | obj | x    |
+|                      | def &(x)      | &    | obj.&(x)      | obj & x    |
+|                      | def ^(x)      | ^    | obj.^(x)      | obj ^ x    |
+   条件赋值运算符||=和与它非常接近得&&=它们都作为同一类快捷方式的伪运算符方法，但是都是以名为||和&&的运算符为基础的，不能修改它们。
+   甚至可以自定义一元运算符。
+   #+BEGIN_SRC ruby
+   class Banner
+     def initialize(text)
+       @text = text
+     end
+     def to_s
+       @text
+     end
+     def +@
+       @text.upcase
+     end
+     def -@
+       @text.downcase
+     end
+   end
+   #+END_SRC
+   也可以通过!方法定义逻辑否运算符，!方法会同时影响一元!和关键字 not。
+** !方法和”危险“
+   方法以'!'结尾的话，被称为 bang 方法，!在 Ruby 内部没有任何意义，但是按照约定，有!的方法比标记为危险的。这个方法，和对等的没有!的方法不一样，它会永久改变其接收者。
+   虽然它也有例外，比如 exit!方法不会运行任何的终结器来结束程序。
+   Ruby 的核心类中充满了 Bang 方法和非 Bang 方法。
+   非 Bang 方法，都是返会对象操作后的一个副本，并不会改变对象本身。
+   _使用时的要点_
+   1) 除非有成对的 M/M!方法，否则不要用!方法。所有的方法自身内部都不危险，！符号只是一个警告，它可能还有其它的含义。
+      不要仅仅因为它会写入文件就命名一个 save!方法，调用 save 方法时，假如还有另一个方法用于写入文件但是没有备份原文件，那么就可以使用 save!。
+   2) 不要将！与破坏性等同。它只是有着危险的含义，并可能存在不可预期的行为。
+   3) 并且!仅仅只是一个约定，并不是必须有的行为。
+** 内置方法和自定义 to_*方法
+*** 字符串转换：to_s
+    to_s 通过确定的方法和一定的语义上下文，用规范的字符串表示对象。例如 puts 方法，就会调用 to_s 作为它的参数。
+**** inspect
+     每一个 ruby 对象，都有一个 inspect 方法。默认的清况下，除非给定的类覆盖了 inspect 方法，否则 inspect 输出的对象是内存位置的简短屏幕转存字符。
+**** display
+     display 有一个参数：以 Ruby 的 I/O 对象形态构成的一个可写的输出流。默认情况下，它使用 STDOUT
+*** to_a 和*运算符。
+    裸列表由许多用逗号分隔的标示符或者字面对象组成。
+    *有着方括号移除或者展开数组的效果。例如：
+    #+BEGIN_SRC ruby
+    arr = [1, 2, 3, 4, 5]
+    [* arr]
+    #+END_SRC
+    在 arr 中的数组被降级，因此可说，由于*的缘故，它变成了裸列表。
+*** to_i 和 to_f
+    正常的转换略过不提。
+    >> "hello".to_f        => 0.0
+    >> "12.3hello".to_f    => 12.3
+    Ruby 提供了名为 Integer 和 Float 的方法来进行更为严格的转换，类似于 C 语言中的强转。
+** 布尔状态，布尔对象和 nil
+*** true 和 false 作为状态使用
+    与其它语言没有什么区比
+*** true 和 false 作为对象使用
+    true 和 false 是 特殊的对象，它们仅仅分别作为特殊类 TrueClass 和 FalseClass 的实例被创建。可以通过.class 方法获得它们的类名。
+    每个 Ruby 表达式从 bool 理论上来说，不是 true，就是法 false。
+*** 特殊对象 nil
+    nil 是一个对象，表明没有任何东西，但是它并不是空。它可以和其它对象一样响应方法调用。
+    nil 有一个为 false 的 bool 值，且只有 nil 和 false 这两个对象才是这样。
+** 对象比较
+   一般来说存在==和 eql?等方法来进行比较，但是同时如果一些自定义的类也需要比较的话，那么必须尊循以下步骤
+   + 混合名为 Comparable 的模块到 MyClass。
+   + 在 MyClass 中定义名为<=>的比较方法作为实例。
+   #+BEGIN_SRC ruby
+   class Bid
+     include Comparable
+     attraccessor :estimate
+     def <=>(other_bid)
+       if self.estimate < other_bid.estimate
+         -1
+       if self.estimate > other_bid.estimate
+         1
+       else
+         0
+       end
+     end
+   end
+   #+END_SRC
+   <=>方法由 if/else/end 语句构成，依赖于一个分支的执行。这三个返回值对于 Ruby 而言是预定好的，<=>必须返会这 3 个之中的一个。
+** 审查对象的能力
+   在对象的生命周期内，在程序的某些位置获取这些对象信息的多种方式，之前学到的大多数关于对象以字符串的形式展现自身的方式，称为审查。
+*** 列出对象的方法
+    >> "string".methods
+    >> "string".methods.include?(method_name)
+*** 过滤和选则性的方法列表
+    String.instance_method(false)
+    在 methods()里加上 false，可以看到这个类不包括其祖先类的方法。
+    存在的其它列表方法如下
+    + obj.private_methods
+    + obj.public_methods
+    + obj.protected_methods
+    + obj.singleton_methods
+    测试类和模板的实例方法如下
+    + MyClass.private_instance_methods
+    + MyClass.protected_instance_methods
+    + MyClass.public_instance_method
+* 字符串、符号、和其它标量对象
+** 字符串的使用
+   Ruby 提供了两个内置类，String 和 Symbol
+*** 字符串表示法
+    字符串问字位于单引号或者双引号之间。
+    单引号不支持插值和大部分转义，基本上所见即所得。
+**** 可选得引用机制
+     %char{text}
+     + q=> 产生一个和单引号效果相同的字符串
+     + Q=> 产生一个和双引号效果相同的字符串
+     + etc
+     两边的限定符并不一定是{}，只要限定符的两端能够闭合即可。// --都可以。
+**** here 文档
+     #+BEGIN_SRC ruby
+     >> test = <<EOM
+     This is the first line of text.
+     This is the second line ot text.
+     Now we've down.
+     EOM
+     #+END_SRC
+     表达式<<EOM 表示字符串开始，直到 EOM 出现的位置结束。也可以加上-变成<<-EOM 来关闭左对齐功能。
+     <<EOM 不必作为该行最后一个表达式。不管它出现在哪里，它都是作为占位符服务于即将出现的 here 文档。甚至可以在对象构造器里使用 here 文档。
+     #+BEGIN_SRC ruby
+     array = [1,2,3,<<EOM,4]
+     This is the here-doc
+     It becomes array[3]
+     EOM
+     p array
+     #+END_SRC
+*** 基础字符串的操作
+**** 获取合设置子串
+     可以使用[]来获得字符串的第 n 个字符或者某个范围内的字符。
+     也可以基于显式的字符搜索抓取子串。
+     string["cool lang"]类似此形式。
+     也可以在[]内使用正则表达式。
+     也可以用 slice 来从字符串中永久移除字符。
+**** 合并字符串
+     #+BEGIN_SRC ruby
+     string1 << string2
+     str = string1 + string2
+     #+END_SRC
+     也可以使用插值的方式来合并字符串。
+*** 查询字符串
+    可以使用 include?方法查询一个字符串是否包含指定的子串。
+    可以使用 size，length 等来查询字符串的信息。
+    用于字符串合并了 Comparable 模块，所以可以进行比较，基本上是字典序。
+*** 字符串转换
+**** 大小写转换
+     + upcase：大写
+     + downcase：小写
+     + swapcase：大写变小写，小写变大写
+     + capitalize：首字母大写
+**** 格式转换
+     rjust 和 ljust 可以将字符串扩展到第一个参数指定的长度。一个左对齐，一个右对齐。
+     strip，lstrip，rstrip 来去掉左边或者右边或者双边的括号。
+**** 内容转换
+     chop 无条件移除一个字符。
+     chomp 移除目标子串，前提是要能找到它。
+     clear 完全清除字符串。
+     replace 替换目标子串。
+     delete 从字符串里删除指定的目标文件。
+     crypt 会针对字符串进行 DES 加密。
+*** 字符串编码
+    一般默认 UTF-8 作为编码。
+    __ENCODING__可以输出默认编码。
+    如果需要改变文件编码，则需要使用：
+    # endcoding: encoding
+** 符号及其编码
+   符号的特点：
+   + 不变性：符号不能添加字符，一但存在，就不能更改。
+   + 唯一性：无论何时看到的相同内容的符号，都是同一个对象。
+*** 符号的作用
+**** 方法参数
+     大量核心的 Ruby 方法都使用符号作为参数。也可以使用字符串作为参数。
+**** 散列参数
+     Ruby 处理符号更快。
+     符号作为散列键更好一些，因为它存在不变性，而 string 是可变的。
+** 数值对象
+   虽然它的行为和数字一样，但是其实它是类。
+   也有各种各样的方法。
+** 时间和日期
+   Date.today
+   获得今天的日期。
+   可以使用 parse 构造器，传递一个字符串表示的日期作为参数 ，创建一个新日期。
+   如果提供的是 1 位或者 2 位数字，Ruby 会扩展到千位，如果数字是 69 或者更大，则会上移到 1900,如果为 0 到 68,则位移为 2000.
+   #+BEGIN_SRC ruby
+   Date.parse("November 2 2013") => 2013-11-2
+   Date.parse("2 Nov 2013")      => 2013-11-2
+   Date.parse("2013/11/2")       => 2013-11-2
+   Date.parse("03/9/9")          => 2003-9-9
+   Date.parse("77/6/9")          => 1977-6-9
+   #+END_SRC
+   DateTime 是 Date 的子集，但是用于重载的关系，它的参数有点不同。
+   最常用的构造器是 new，now 和 parse。
+*** 日期格式化的方法
+| Specifier | Description                             |
+|-----------+-----------------------------------------|
+| %Y        | year                                    |
+| %y        | year(last two)                          |
+| %b, %B    | short months,                           |
+| %m        | months(number)                          |
+| %d        | Day of month(left added with zeros      |
+| %e        | Day of month(left added with blanks     |
+| %a,%A     | Short day name, full day name           |
+| %H,%I     | Hour(24-hour clock),hour(12-hour clock) |
+| %M        | Minute                                  |
+| %S        | Second                                  |
+| %c        | Equicalent to "%a %b %d %H:%M:%S %Y"    |
+| %x        | Equivalent to "%m/%d/%y"                |
+*** 日期和时间的转换
+    使用的日期时间类之间都可以换行转换，失去的字段将会变为 0,犹其是午夜的时间。
+    在时间上＋ － 会对天数起作用，用>>和<<会对加减月份。
+    还可以使用 up_to 或者 down_to 在一定范围进行迭代。
+* 集合和容器对象
+  Ruby 通过将一组对象放到容器中来表示对象的集合，主要使用的容器对象是数组和散列。
+  Ruby 中的集合大部分是通过混合一个 Enumberable 模块实现的。这个模块提供了一组可以排序、筛选、过滤、统记和转换集合的方法。
+** 数组和散列的比较
+   数组是一个有序对象的集合。有序表示用户可以用数字索引中选择对象。
+   散列在 Ruby 最近的版本中也是有序的，在之前的版本中并不是。
+   任何 Ruby 对象都可以作为散列的键值，但是每个散列中的键是唯一的。
+   从某种意义上来讲，数组就是另一种散列，只是其键是连续的整数。
+** 使用数组处理集合
+   可以用以下几种方法创建数组。
+   + 使用 Array.new 方法
+   + 使用数组字面构造器。
+   + 使用名为 Array 的顶层方法。
+   + 使用特殊的%w{...}或者%i{...}。
+*** 操作数组的方法
+    Array#[]可用来抓取元素。
+    Array#slice 与[]方法类似，它可以携带两个参数，一个起始位置的索引和可选的长度。
+    Array#unshift,Array#push 可以分别在数组的头尾插入元素。
+    方法<<与 push 类似，但是 push 可以带有一个或者多个参数。
+    shift 和 pop 可以同时移除多个元素。返回值是被移除的元素，数组通过这些操作被永久更该。
+    将一个数组添加到另一个数组中，可以使用 concat 方法。
+    >> [1,2,3].concat([4,5,6])  => [1,2,3,4,5,6]
+    replace 会进行替换操作。
+    数组转换方法 flatten，它会将数组中内部的数组去除嵌套，即扁平化。
+    >> array = [1,2,[3,4,[5],[6,[7,8]]]]
+    >> array.flatten
+    => [1,2,3,4,5,6,7,8,9]
+    >> array.flatten(1)
+    => [1,2,3,4,[5],[6,[7,8]]]
+    >> array.flatten(2)
+    => [1,2,3,4,5,6,[7,8]]
+    数组查询
+| Method name             | Meaning                                |
+|-------------------------+----------------------------------------|
+| a.size(synonym: length) | Number of elements in the array        |
+| a.empty?                | True if an empty array                 |
+| a.include?(item)        | True if the array include items        |
+| a.count(item)           | Number of occurrences of item in array |
+| a.first(n=1)            | First n elements of array              |
+| a.last(n=1)             | Last n elementes of array              |
+** 散列
+*** 散列的创建 
+    + 使用字面构造器
+    + 使用 Hash.new
+    + 使用 Hash.[]
+    + 使用名为 Hash 的顶层方法。
+      Hash 方法的行为稍稍特殊，如果调用时传递[]或者 nil，它会返会一个空的散列。
+*** 添加键值和取会键值
+    应用的最多的时[]=和[]方法。
+*** 指定默认键值
+    在 Hash.new 时，传入的参数就是默认参数，当用不存在的键请求散列的值时，就会返回这些值。
+    甚至可以使用代码块让 Hash 在请求一个不存在的键值的时候，被赋值为约定的对象。
+    h = Hash.new{ |hash, key| hash[key] = 0 
+*** 与其它散列合并
+**** 破坏性方法
+     使用 update 可以执行破坏性的工作。
+**** 非破坏性方法
+     使用 merge，可以生成一个新的散列。
+     h3 = h1.merge(h2)
+*** 散列转换
+    Hash#select 可以在传进的代码块里抓取符和条件的元素，组成新 Hash。
+    Hash#reject 与 select 相反，抓取不符和条件的元素。
+    Hash#invert 可以将键和值进行反转。
+*** 散列查询
+| Method name      | Meaning                          |
+|------------------+----------------------------------|
+| h.has_key?(1)    | True if h has the key 1          |
+| h.include?(1)    | Synonym for has_key?             |
+| h.key?(1)        | same with has_key?               |
+| h.memeber?(1)    | same with has_key?               |
+| h.has_value?("") | True if has the value            |
+| h.value?(""      | Same as has_value?               |
+| h.empty?         | True if h has no key/value pairs |
+| h.size           | Number of key/value pairs in h   |
+    如果用户在调用方法时，让 _参数中的最后一个_ 成为散列对象，Ruby 就允许不使用花括号就可以传递一个散列对象。 
+** 范围
+   范围是一个有起点有终点的的对象，其语义上的操作包含了以下两个概念。
+   + 包含，一个指定的值是否落在了区间内。
+   + 枚举，范围是作为可以对每个单独的元素进行遍历的集合。
+*** 创建范围
+    可以使用 Range.new 创建范围对象。
+    字面语法也可以直接创建一个范围。
+    >> r = 1..100
+    ..与...的区别就是，两个点之后的端点是范围的终点值，三个点的话，值被推到了范围外。
+*** 范围逻辑的包含
+    begin 和 end 可以获得范围的起始点和结束点。
+**** cover?
+     注意用与检查包含性的数据不能用于范围的起点和终点进行比较。
+     r.conver?([])
+**** include?
+     include？将范围看作一种加密数组来对待，即包含许多值的一种集合类型。
+   用户可以创建一个反向的范围，但是它并不能预期一样运行。
+   >> r = 100..1
+   >> r.include?(50)
+   => false
+** 集合
+   集合并不是核心类，而是标准库类，要使用它必须 require。
+   set 是对象唯一的集合类型，对象可以是任意的类型，字符串，整数，数组，其它的集合，都可以，但是它们中，同一个对象不会出现多次。
+*** 集合的创建
+    可以使用 Set.new 构造器创建一个集合。
+    可以创建一个空的集合。
+    可以传递一个集合的对象。
+    和数组一样，集合也有两种添加元素的形式。一种是插入，一种是合并。
+*** 集合的插入
+    可以使用<<运算符，add 于<<方法一样使用。
+    如果要移除，可以使用 delete 方法。
+*** 集合有交，并，补集的概念。
+    Set 有针对这些操作的必要方法。
+    + intersection, &
+    + union, + or |
+    + difference, -
+      合并另一个对象到集合之中所发生的一切，取决于该对象迭代自身元素所采取的方式。
+*** 子集和超集
+    可以在集合之间利用 subset superset 方法测试子集和超集的关系。
+    同时也可以使用 proper_subset 和 proper_superset 测试真子集和真超集的关系。
+* 集合类型核心：Enumerable and Enumerator
+  Ruby 的集合类型通常都包括了 Enumerable 模块。
+  使用 Enumerabler 的类有一个协定，类必须定义一个名为 each 的实例方法，而同时 Enumerable 也赋予类的对象一组集合类型相关的行为。这些行为都会通过 each 来定义。
+  #+BEGIN_SRC ruby
+  class C
+    include Enumerable
+    def each
+      # relevant code here
+    end
+  end
+  #+END_SRC
+  这样，类 C 的对象就有了调用定义在 Enumerable 中实例方法的能力。
+** 使用 each 获得枚举能力
+   任何作为可以枚举的类都必须有一个 each 方法，作用是将其中的元素逐个作为参数传递给代码块。
+   #+BEGIN_SRC ruby
+   class Rainbow
+     include Enumerable
+     def each
+       yield "red"
+       yield "orange"
+       yield "yellow"
+       yield "green"
+       yield "blue"
+       yield "indigo"
+       yield "violet"
+     end
+   end
+   #+END_SRC
+   find 方法的运行依赖于 each 方法的调用，each 会传递元素，然后 find 使用指定的代码块逐个的进行匹配测试。
+   find 方法并不需要单独调用，它是 Enumerable 中的一部分，混合到了类里之后，它知道自己的任务。
+   Ruby 中，可枚举类的一些方法是被重写过的。
+** Enumerable 的 bool 值查询
+   Enumerable 的一些方法，可以判定指定条件是否与元素匹配，以返会 true 或者 false。
+   #+BEGIN_SRC ruby
+   >> states.include?("Louisiana")
+   => true
+   >> states.all?{ |state| state =~ / / }
+   => false
+   >> states.any?{ |state| state =~ / /}
+   => true
+   >> states.one?{ |state| state =~ /West/ }
+   #+END_SRC 
+   集合的迭代于数组用于 bool 查询目的的迭代非常相像。
+   将范围视为可枚举类型比其它集合类型有着给定的意义。include?可以用于任意范围的对象，但是 Enumerable 中其它 bool 值方法会出现可枚举能力的问题：
+   _如果范围被表示为离散元素的列表，方法可执行，如果不是这样，比如使用浮点数，则方法的调用会产生致命错误。
+** 可枚举对象的搜索和选则
+   Enumerable 模块提供了很多功能，可用于在集合类型对象中工具一些条件过滤和搜索其中的一个或者多个元素，这些方法都是迭代器，全部需要提供一个代码块。
+*** find
+    通过将数组中的元素作为参数传递给代码块并执行条件判断，find 会定位数组中条件判定为真的第一个元素。
+    虽然 find 总是返回一个对象，但是 find_all 返回的是一个数组。
+*** 使用 find_all 和 reject
+    find_all（又名 select）会返会一个新集合类型对象，其包括了在代码块中匹配条件后从原始集合类型对象中得到的元素，且不仅仅是第一个匹配到的元素。如果没有找到匹配的元素，它会返会一个空的集合类型对象。
+    reject 与 find_all 相反。
+*** 使用基于===匹配的 grep 来选择元素
+    Enumerable#grep 方法会基于 case 的相等性运算符===，从可枚举对象中选择元素。grep 最常见的用途，即字符串模式匹配。
+    #+BEGIN_SRC ruby
+    >> colors = %w{ red orange yellow green blue indigo violet }
+    >> colors.grep(/0/)
+    => ["orange", "yellow", "indigo", "violet"]
+    #+END_SRC
+    enumeralble.grep(expression)功能与以下相等。
+    enumerable.select{ |element| expression === element }
+    换句话说，它选择了调用===可以返回 true 的元素。
+*** 使用 group_by 和 partition 组织选择的结果
+    group_by 操作包含一个代码块，并返回一个散列，对于每个对象，代码块都会被执行一次，每个独立代码块返会的值，最终会作为返回值的键列表，而键对应的值则是一个数组。
+    #+BEGIN_SRC ruby
+    colors.group_by{ |color| color.size }
+    => { 3=>["red"], 6=>["orange", "yellow", "indigo", "violet"], 5=>["green"], 4=>["blue"] }
+    #+END_SRC
+    partition 方法和 group_by 非常相似，但是它会基于代码块是否返会真来将可枚举对象的元素分隔成两个数组。
+** 可枚举对象的元素级操作
+*** first 方法
+    first 方法返回对象和使用迭代时得到的第一个对象都是相同的。它是通过 each 方法第一次传递到代码块中的元素。
+*** take 和 drop 方法
+    它们使用指定的位置重复集合，不同点在于返回值不同。
+*** min 和 max
+    最小值和最大值通过<=>方法来判断。
+** 与 each 相关的方法
+*** reverse_each
+    用法和 each 相同，但是是反向迭代。
+*** each_with_index
+    它在遍历集合时，它每次会传递一个额外的参数到代码中去，从命名上来说，它是一个代表了元素序号的整数。
+    每个可枚举对象都拥有它，但是不是每个可枚举对象都可以使用索引。
+    散列使用时需要格外小心。
+*** each_slice 和 each_cons 方法
+    它们是 each 的特殊版本，它们可以一次遍历集合中一定数量的元素，并将许多元素作为数组在每次迭代时传递给代码块。
+    它们的不同在于 each_slice 只对每个元素处理一次，而 each_cons 会对每个元素采用新的分组的形式。
+*** cycle 方法
+    Enumerable#cycle 会反复将对象中的所有元素作为参数传递进入代码块，如果调用时传递了参数，循环次数由该参数决定，否则，它会无限次的循环下去。
+*** inject 方法
+    又名 reduce，通过初始化一个累加器对象，然后运行集合类型对象的迭代，每执行一次迭代就计算一次并再次设置累加器，最后将其结果用于下一次的运行
+    >> [1,2,3,4,5].reject(0) { |acc, n| acc+n }
+    => 15
+    通过传递的参数 0,acc 被初始化成 0,然后根据块中的算法进行运算。
+** Map 方法
+   无论枚举对象从何开始，map 都会返回一个数组，返回的数组总是与原始的可枚举对象大小相等，通过把源集合类型对象中的元素依次传入代码块，并进行计算后，构成返回值数组。
+   each 会返回其自身的接收者，但是 map 返回的是一个新的数组。
+   map 有一个对应的 map!方法，可以用再数组和集合内。
+** 将字符串看作准可枚举对象
+   遍历一个字符串主要有 each_byte,each_char,each_line,each_codepoint 四种方法，具体看方法名即可了解使用方法。
+** 可枚举对象的排序
+   + 定义类的比较方法<=>
+   + 将多个实例放到容器中，可能是数组中。
+   + 对这个容器排序。
+   作为可枚举的集合类型对象有两个可用的排序方法，即 sort 和 sort_by。
+   让可枚举对象有排序能力，关键不在于 Comparable 模块，而是<=>运算符。
+   要是对象中没有定义<=>方法，也可以动态的使用代码块来指明对象如何排序。既使定义过<=>方法，也可以通过代码块覆盖原有的操作。
+** 枚举器和可枚举性的下一个维度。
+   迭代器是一个方法，它将一个或者多个元素传入代码块，而枚举器是一个对象，不是方法。
+   枚举器不是一个容器对象，它不像数组一样天生带有 each 方法，每个枚举器的 each 迭代逻辑必须显式指定。在定义了它们如何 each 之后，枚举器才可以使用。
+   要么是调用 Enumerator.new 时伴随一个代码块，以便让代码块包含枚举器稍后用到的 each 逻辑。
+   要么是创建一个可以基于可存在的枚举对象的枚举器。
+   #+BEGIN_SRC ruby
+   e = Enumerator.new do |y|
+     y << 1
+     y << 2
+     y << 3
+   end
+   #+END_SRC
+   y 是一个传递者，它是 Enumerator::Yielder 的一个实例，会自动的传递到代码块中。
+   在者个例子中，当枚举器调用 each 时，会依次传出 1,2,3 三个数字。
+   e 时一个枚举制造器，它不能包含对象，只能拥有与它相关的代码逻辑，即最初的代码块。
+*** 附加枚举器到其它对象
+    将枚举器挂到其它对象上，尤其是将迭代器挂到另一个对象上，这将会使枚举器基于迭代自己的功能，因此，枚举器扮演了一部分代理，一部分寄生的角色。
+    从需要用到的枚举器中抽取逻辑，然后通过让对象调用 enum_for，这样就可以创建枚举器。
+    也可以提供更多的参数给 enum_for，任何这些枚举器附加方法的参数，都通过该方法传递进来。
+    #+BEGIN_SRC ruby
+    names = %w{ David Black Yukihiro Matsumoto }
+    e = names.enum_for(:select)
+    e.each{ |n| n.include?('a') }       =>  names.select{ |n| n.include?('a') }
+    #+END_SRC
+    指定:select 作为参数则意味着把枚举器绑定在 names 数组的 select 方法。也意味着枚举器的 each 将作为 select 方法的最前端最先被调用。
+*** 无代码块迭代器隐式创建枚举器
+    当大多数内置迭代器没有使用代码块，它会返会一个枚举器，
+    #+BEGIN_SRC ruby
+    str = "Hello"
+    str.each_byte
+    => #<Enumerator: "Hello":each_byte>
+    #+END_SRC
+** 枚举器的语义和使用
+   枚举器的 each 方法与另一个对象的某一个方法挂钩，这个方法可能不是 each。假如直接使用它，它的行为包括在返会值方面的行为，与另外那个对象的方法很相似。
+   这些是调用 each 返回的，筛选过的，排序过的，或者映射过的集合。
+   如果一个类包含了 each 方法，并包括了 Enumerable 模块，它的实例会自动获得 map,select,inject 和其它 enumerable 的方法。这些方法的定义是通过 each 方法实现的。
+   但是有时候，给定的类覆盖了 Enumerable 中相应的方法。
+*** 使用枚举器的细粒度迭代
+    枚举器可以维护状态，它们可以持续重置自身枚举的过程。
+    #+BEGIN_SRC ruby
+    names = %w{ David Yukiniro }
+    e = names.to_enum
+    puts e.next     => David
+    puts e.next     => Yukiniro
+    e.rewind
+    puts e.next     => David
+    #+END_SRC
+    这一点也明确了枚举器和迭代器的不同。枚举器是一个对象，因此它可以保存状态，它会记住枚举过程的位置，而迭代器是一个方法，调用它的过程是原子性的。
+*** 使用枚举器添加可枚举性
+    枚举器可以将可枚举性添加到不具有该特性的对象中。
+    如果将一个枚举器的 each 方法与任何迭代器关联，就可以使用枚举器在拥有该迭代器的对象上执行可枚举的操作。
+    #+BEGIN_SRC ruby
+    module Music
+      class Scale
+        NOTES = %w{ c c# d d# e f f# g a a# b }
+        def play
+          NOTES.each{ |note| yield note }
+        end
+      end
+    end
+    scale = Music::Scale.new
+    scale.play{ |note| puts "Next note is #{note}" }
+    #+END_SRC
+** 枚举器的方法链
+   方法链数据的处理是从左至右，如同传送带一样强大。但是这会负出一些带价，会创建一些中间对象，但是有些中间对象是没有意义的。
+*** 使用枚举器在字符串上执行异或操作
+    #+BEGIN_SRC ruby
+    class String
+      def ^(key)
+        kenum = key.each_byte.cycle
+        each_byte.map{|byte| byte ^ kenum.next}.pach("C*")
+      end
+    end
+    #+END_SRC
+*** 延迟枚举器
+    借助延迟枚举器，能够从无限的集合得到一个有限的架构。直接在范围上调用 lazy 方法将会产生一个覆盖该范围的延迟枚举器。
+    它可以从操作过程中抓取结果集，而不用迭代哪个无限循环的 ren wuu 完成。具体来说，现在可以从无限的列表中请求选取前 10 条结果，然后无限列表会只枚举出必要的 10 条结果。
+    #+BEGIN_SRC ruby
+    (1..Float::INFINITY).lazy.select { |n| n % 3 == 0}.first(10)
+    [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]
+    #+END_SRC
+* 正则表达式
+** 什么是正则表达式
+  Ruby 中的正则表达式与其它语言中一致，它指定了由多个字符构造的一个模式，者个模式可能会正确的预知或者说是匹配一个给定的字符串。
+  许多 Ruby 内置的方法都可以将正则表达式作为参数，然后执行一个或多个字符串对象的选择或者修改操作。
+** 构建正则表达式的模式
+   能够构成正则表达式的组成部份如下：
+   + 文字字符，意味着匹配这个字符
+   + 点通配符（.)，意味着匹配任意字符。
+   + 字符类，意味着匹配这个字符中的一个。
+** 匹配，子串截取
+   构建正则表达式最重要的技术之一是使用圆括号指定捕获。
+   #+BEGIN_SRC ruby
+   /a/                       #match character 'a'
+   /[a-z]/                   #match character one in 'a' to 'z'
+   /(A-Za-z]+),(A-Za-z)+,(Mrs?\.)/   #match "string, string, Mr(s)"
+   #+END_SRC
+   执行匹配操作后，会发生两件事情。
+   + 得到 MatchData 对象用于获取子匹配
+   + Ruby 自动构建了一系列的变量，也可以用它们来访问这些子串。
+     + Ruby 构建的是全局变量，它们的名字基于数字$1,$2 等等，在匹配成功后，变量$n 包含的匹配子串是正则表达式从左起第 n 个圆括号内的子模式获取的。
+   如果字符串不能匹配时，结果会返回 nil。
+   #+BEGIN_SRC ruby
+   string = "My phone number is (123) 555-1234."
+   phone_re = /\((\d{3})\)\s+(\d{3})-(\d{4})/   #大括号用来匹配长度。
+   m = phone_re.match(string)                   #只匹配了后面的电话号码。
+   unless m
+     puts "There was no mathch-sorry."
+     exit
+   end
+   print "The whole string we started with."
+   puts m.string
+   print "The entire part of the string that matched: "
+   puts m[0]
+   puts "The three captures: "
+   3.times do |index|
+     puts "Capture ##{index + 1}: #{m.captures[index]}"
+   end
+   puts "Here's another way to get at the first capture:"
+   ptrint "Capture #1"
+   puts m[1]
+   #+END_SRC
+   从 MatchData 对象中获得的捕获结果的一个方式就是直接通过数组的方式索引对象。
+   m[1],
+   m[2],
+   etc。
+   从 MatchData 对象中获取捕获的另一项技术是 captures 方法。它会以但是数组的形式返回所有的捕获的子串。
+   使用多种或者嵌套捕获的时候，从左括号开始计数即可。
+** 使用量词，锚点和修饰符微调正则表达式
+*** 使用量词约束匹配
+**** 0 或 1
+     使用?可以匹配 0 个或者 1 个字符
+     例如：\d?
+**** 0 或者更多
+     使用*，例如/<\s*\/\s*poem\s*>/
+     \s*表示要允许要匹配的字符串在匹配位置上出现零个或者多个字符。
+     _请注意，正则表达式不是万能的。犹其是用于 XML 用必须使用元素的嵌套和以某种形式表示的字符数据。_
+**** 一次或者多次
+     一次或者多次用(+)表示，并放置于要匹配一次或者多次的字符或者分组捕获之后。
+*** 贪婪的量词
+    *和+两个量词具有贪婪的特性，这表明它们会尽可能多的匹配字符，符和允许余下的模式匹配的原则。
+    如果要指定子模式中某个部份重复的次数，可以将数字放在{}内并与左边的子串表达式关联。
+    但是要注意，一次匹配 5 个字符和匹配一个字符 5 次并不一样。
+    #+BEGIN_SRC ruby
+    /([A-Z]){5}/.match("David BLACK")
+    => #<MatchData "BLACK" 1:"K">
+    /([A-Z]{5})/.match("David BLACK")
+    => #<MatchData "BLACK" 1:"BLACK">
+    #+END_SRC
+*** 正则表达式的锚点和断言
+    当用户匹配一个字符时，被认为时在 用于匹配的字符串中消耗一个字符，而另一方面，一个断言或者锚点，并不会消耗任何字符。相反，它表达的是一个约束，是 在字符被用于匹配之前的一个条件。
+    最常见的是一行的起始^和结束$。
+| Notation | Description                            | Example             | Sample matching string                      |
+|----------+----------------------------------------+---------------------+---------------------------------------------|
+| ^        | Beginging of line                      | /^s*#               | "# A Ruby comment line with leading spaces" |
+| $        | End of line                            | /\.s$/              | "one\ntwo\nthree.\bfour"                    |
+| \A       | Beginging of string                    | /\AFour score/      | "Four score"                                |
+| \z       | End of string                          | /from the earth.\z/ | "from the earth"                            |
+| \Z       | End of string(except for fine newline) | /from the earth.\Z/ | "from the earth\n"                          |
+| \b       | Word boundary                          | /\b\w+\b/           | "!!!word***"(matches "word")                |
+**** 先行断言
+     如果需要在仅当某个数字序列以点结尾的清况下，才进行匹配，但是不把点自身作为匹配的部份进行匹配。
+     #+BEGIN_SRC ruby
+     str = "123 456. 789"
+     m = /\d+(?=\.)/.match(str)
+     #+END_SRC
+     此时，m[0]的值是 456,点之前的一个数字序列。
+     零宽代表在字符串中，它不会消耗任何字符，存在于字符串的字符点被标记了，但是只要模式包含它，仍可以被匹配
+     正向的含义是确保字符点会出现。同时也存在负先行，它们使用?!而不是?=。
+     先行断言的含义是指定下一个出现的字符，但是不匹配它。
+**** 回顾断言
+     与先行断言相匹配，使用?<=或者?<!
+     #+BEGIN_SRC ruby
+     re = /(?<=David)BLACK/ #是以 David 开头时候才匹配。
+     re = /(?<!David)BLACK/ #不是以 David 开头时候才匹配。
+     #+END_SRC
+*** 修饰符
+    修饰符是一个放在尾部的字符，在闭合的斜杠后面
+    i 修饰符表明这个正则表达式不区分大小写。
+    m 修饰符表明这个正则表达式不包括任意换行字符。
+    x 修饰符会改变正则表达式对与空格的解析方式。
+    _使用 x 修饰符时要格外小心，第一次解除它的时候，可能会发现它会导致所有的模式变成散开的状态。_
+** 字符串和正则表达式的相互转换。
+   使用插值可以将字符串插入正则表达式中。
+   通过将字符串传递给 Regexp.new 可以让一个字符串实例化成正则表达式。
+   可以使用.inspect 来将正则表达式转换为字符串。
+** 正则表达式的常用方法
+*** String#scan
+    从左往右扫描字符串，进行匹配测试，结果返回一个数组。
+    scan 也可以使用代码块。
+    match 在完成一个匹配后永久的停下来。
+*** String#split
+    split 会让一个字符串分隔为多个子串，然后以数组的形式返回这些子串。
+*** sub/sub! and gsub/gsub!
+    它们的区比在于 gsub 会彻底改变字符串，而 sub 最多会替换一个子串。
+**** sub
+     带有两个参数，一个正则表达式和一个替换字符串，无论字符串哪个部份匹配了正则表达式，都会 从字符串中移除并替换。
+     可以用代码块替换掉第二隔参数。
+**** grub
+     grub 和 sub 很像，不同点在于它会持续替换。
+*** case 和 grep 方法
+    用于正则表达式的 case 相等性测试是一个匹配性测试：对于任意给定的正则表达式和字符串，如果字符串匹配正则表达式，则 regexp === string => true
+    可以显式的用===用作匹配测试。
+    grep 的选择会以 case 相等性运算符为基础。
+    因此当指定一个正则表达式作为参数时，它不会选择字符串以外的任何对象。数字和字符串之间时不能相互转型的。
+* 文件和 IO 操作
+  文件和 IO 都是面向对象的，输入和输出流都是对象，如标准的输入输出流和文件句柄。一些与 IO 相关的命令是过程化的。
+  Ruby 程序的内存空间是一种理想化的空间，对象会在那里出现，然后彼此沟通，事实上 IO 和系统命令的执行会跃出理想空间的界限。
+  Ruby 做了许多工作将对象保持在混合空间之中。
+** Ruby 中 IO 系统的组成
+   IO 类通过它自己或者它的子类，处理所有的输入输出流。
+   IO 的 API 主要是通过包装对系统库的调用而构建，同时也对系统库进行了提升和强化。
+*** IO 类
+    IO 对象代表可读或者可写的链接，其关联到磁盘文件，键盘，屏幕和其它设备，可以像对其它对象一样使用 IO 对象，发送信息，执行方法然后返回结果。
+    当程序启动时，常量 STDERR，STDOUT，STDIN 被自动设置。
+    IO 对象可枚举。
+    除了 STDERR,STDOUT,STDIN 之外，Ruby 还提供了三个全局变量：$stdin,$stdout,$stderr。
+    这 3 个变量可以重赋值，它们提供了一种可以修改默认标准 IO 流的方式，而不会丢失原本的流。
+    #+BEGIN_SRC ruby
+    record = File.open("path")
+    old_stdout = $stdout
+    $stdout = record
+    $stderr = $stdout
+    puts "This is a record"
+    z = 10/0
+    #+END_SRC
+    这个代码将 STDOUT 合 STDERR 绑定在了 File 类 record 上，这个时候变量应该从 stdout 合 stderr 中输出的信息，都变成了输入进 record 文件中了。
+    使用 getc 方法时，需要明确的命名输入流。
+** 基本文件操作
+   内置类 File 提供了操作文件的工具，File 是 IO 的子类，因此 File 对象会与 IO 对象共享特定的属性。
+*** 文件读写基础
+    读取文件可以一次读取一个字节，一次读取指定数量的字节或者一次读取一行。
+**** 基于行的文件读取
+     使用 gets 或者 readline。readline 方法比 gets 做的事情要多，读取操作越过文件末端的行为，gets 会返回 nil,而 readline 会引发 FatalError。
+     如果想一次性获得文件，可以使用 readlines。同时还要注意 rewind 操作。
+**** 基于字节和字符的文件读取
+     可以使用 getc 和 ungetc 进行取用，但是同时注意，getc 和 ungetc 都需要绑定流对象来进行使用。
+**** 搜索和查询文件位置。
+     使用 seek 方法，使用方法与 c 相同
+**** File 类
+     使用 File 类可以对文件进行读写操作。
+     涉及方法有：puts print write read readlines 等等。
+     使用 File.new 来创建 File 对象，必须手动关闭文件，Ruby 提供了一个可选的打开文件的方式，让 Ruby 自身来掌握关闭文件的任务，使用 File.open 与代码块。
+     由于 Enumerables 是 File 的祖先之一，所以可以对 File 进行迭代。
+** 查询 IO 和 File 对象
+   File::stat 会返回一些对象，这些对象的属性和定义与在 C 语言库中调用 stat 结构的字段直接对应。
+   FileTest 模块提供了大量可以获得文件状态信息的方法。
+   + 文件是否存在？
+     FileTest.exist?
+   + 是文件还是目录
+     FileTest.diretory?
+     FileTest.file?
+     FileTest.symlink?
+   + 文件是否可读，可写，可执行
+     FileTest.readable?
+     FileTestwritable
+   + 文件大写是多少，是否为空？
+     FileTest.size
+     FileTest.zero
+*** 使用 Dir 类 进行目录操作
+    如果要创建一个 Dir 类的实例，需要传递一个目标路经给 new 方法。
+    最常见的 Dir 相关技术是对目录下的条目进行迭代。
+*** entries 方法
+    可以获得目录下所有文件的名字。
+*** 路经匹配
+    Ruby 中的路经匹配大量来自 shell 中的名称匹配。
+*** 其它方法
+    Dir 类的方法命名基本上与 shell 命令相同。
+*** FileUtils 模块
+    FileUtils 模块提供了一些实用和便捷的方法，它使用常见的系统命令相对的简洁方式。
+    命名一模一样！
+*** Pathname 类
+    使用 Pathname 类可以创建 Pathname 对象，然后查询和操作它们，或者迭代该路经的上级目录结构。
+    在 Pathname 上调用方法，通常会得到另一个 Pathname 对象。
+    这意味这可以扩展 Pahtname 对象操作的逻辑，而不必来回转换其与纯字符串的路经。
+*** StringIO 类
+    StringIO 类可以让使用者像处理字符串一样处理 IO 对象，可以搜寻，回滚，等等。
+*** open-uri 库
+    可以从 http 和 https 上如同读取本地文件一样取回信息。
+* 对象的个性化
+  许多 Ruby 的功能和特点都源自于或者集中于对象的独立性。
+  Ruby 中的大部分设计都是为了保证对象的个性化。
+** 单例对象存在的位置：单例类。
+   #+BEGIN_SRC ruby
+   class C
+     def talk
+       puts "Hi!"
+     end
+   end
+   c = C.new
+   c.talk
+   def c.talk
+     puts "Hi My name is C"
+   end
+   #+END_SRC
+   可以直接在独立对象上定义单例方法。
+   单例方法最常见的类型是类方法－－基于独立的添加到 Class 对象中的方法。
+   不过任何对象都能将单例方法添加到其内部。基于独立对象的本质来定义行为的能力是 Ruby 设计的标志之一。
+   _Ruby 中所有的类都可以添加方法，但是 Numeric 特定子类的实例，包括整型和浮点类，以及符号类，都是例外。_
+** 通过单例类双重决定
+   每个对象最终都有两个类：
+   + 实例方法所属的类。
+   + 它的单例类。
+** 直接检查和修改单例类
+   单例类是匿名的，
+   它们会自动出现，并且不需要指定名字。
+   不过可以打开单例类的类定义主体，然后添加实例方法，类方法和类常量。
+   为了进入单例类的定义主体中，需要用到一个特殊的符号
+   #+BEGIN_SRC ruby
+   class << object
+     # method and constant definitions here
+   end
+   #+END_SRC
+   << object 符号意味着 object 的单例类是匿名的。当唯一单例对象定义主体时，就可以定义方法，然后这些方法就会变成单例方法。
+*** def obj.method 和 class << obj; def method 的区比
+    #+BEGIN_SRC ruby
+    N = 1
+    ojb = Object.new
+    class << obj
+      N = 2
+    end
+    def obj.a_methdo
+      puts N
+    end
+    class << obj
+      def another_method
+        puts N
+      end
+    end
+    obj.a_method                     => 1 外层的 N
+    obj.another_method               => 2 单例类的 N
+    #+END_SRC
+    下面是继承可以看到的习语。
+    #+BEING_SRC ruby
+    class Ticket
+      class << self
+        def most_expensive(*tickets)
+          tickets.max_by(&:price)
+        end
+      end
+    end
+    #+END_SRC
+    这段代码创建了类方法 Ticket.most_expensive
+    同样的类方法也可以这样定义：
+    class << Ticket; def most_expensive(tickets)
+*** 查找路经中的单例类
+    在对方法 x 的搜索中，object 首先会搜索任何前置在单例类中的模块，然后会看到单例类自身，然后会查看单例类中的所有模块，然后搜索过程会参数的对象的原始的类，并依次类推。
+**** 单例类模块包含与原始类模块包含
+     当把模块混合到对象的单例类，就是特殊处理这个对象了，从模块获得的方法将会优于原始类中任何同名的方法。
+     #+BEGIN_SRC ruby
+     class C
+       def talk 
+         puts "Hi from original class"
+       end
+     end
+     module M
+       def talk
+         puts "Hello from module!"
+       end
+     end
+     c = C.new
+     c.talk                             =>     "Hi from original class"
+     class << c
+       include M
+     end
+     c.talk                             =>     "Hello from module!"
+     #+BEGIN_SRC 
+**** singleton_class 方法
+     如果要直接引用对象的单例类，可以使用 singleton_class 方法。
+     p str.singleton_class.ancestors
+*** 元类
+    类对象的单例类，有时候也被称为元类。
+    它是展现 Ruby 如何基于较少的规则进行设计的决好的例子。
+** 修改 Ruby 核心类和模块
+   Ruby 类和模块的开放性，是 Ruby 重要的特点之一。
+*** 修改核心功能的风险
+    改变 Ruby 核心类的问题在于，这些改变是全局性的，只要程序还在运行，做出的改变就会一直有效。
+    如果改变了方法的内部结构，并且这个方法还用在了其它地方，那么这个运行过程中规则的改变就会使得整个解析器处在不稳定状态。
+**** Regexp#match
+     #+BEGIN_SRC ruby
+     class Regexp
+       alias __old_match__ match
+       def match(string)
+         __old_match__(string) || []
+       end
+     end
+     #+END_SRC
+     这个代码可以让 match 失败时返会[]而不是 nil，避免一些错误的发生。乍一看很高明。
+     但是在代码的某个地方，可能会把返会的 nil 用于失败条件的判定。这意味着这些判定全部失效。
+     _不要改变 Ruby 的文档化方法和核心方法！！！_
+**** 修改内置类的最常见方法
+     添加一个不存在的方法，这样就不会破坏一个已经存在的方法。
+     危险在于如果两个程序编写的方法名相同，并在特殊库和程序执行期间一起被包含到解释器中，其中一个会被取代。
+**** 穿透覆盖
+     穿透方法的修改，涉及原始版本方法结束新版本方法调用的方式，覆盖一个已经存在的方法。无论新版本完成的任务是什么，它传递的参数都是需要尊循原始版本的方法。它还依赖于原始方法提供的返回值。
+     例如
+     #+BEGIN_SRC ruby
+     class String
+       alias __old_reverse__ reverse
+       def reverse 
+         $stderr.puts "Reversing a string"
+         __old_reverse__
+       end
+     end
+     #+END_SRC
+     这个例子创建原始 reverse 的别名，然后在新的 reverse 方法的末尾调用这个别名。
+***** 附加穿透混合体
+      它调用旧版的方法，添加某些功能到方法的接口中。换句话说，它用原始的方法的超集覆盖其本身。
+*** 通过 extend 修改独立对象
+    Object#extend 可以改变独立对象的行为，将模块混合到对象的额单例类中。
+    如果要在一个类上编写一个单例方法
+    #+BEGIN_SRC ruby
+    class Car
+      def self.makes
+        %w{ Honda Ford Toyota Chevrolet Volvo }
+      end
+    end
+    #+END_SRC 
+    或者这样
+    #+BEGIN_SRC ruby
+    class Car
+      class << self
+        def makes
+          %w{ Honda Ford Toyota Chevrolet Volvo }
+        end
+      end
+    end
+    #+END_SRC
+    也可以通过 extend 来做到这一点
+    #+BEGIN_SRC ruby
+    module Makers
+      def makes
+        %w{ Honda Ford Toyota Chevrolet Volvo }
+      end
+    end
+    class Car
+      extend Makers
+    end
+    #+END_SRC
+    可以在类对象已经存在后，使用 extend 来扩展它。
+    例如：Car.extend(Makers)
+*** 使用 extend 修改核心行为
+    Kernel#extend 可以让独立对象访问模块，将它们联和起来使用，就有了一个紧凑的，安全的添加功能到核心对象的途径。
+*** 使用精化修改核心行为
+    精化的思路是创建一个临时的，有限作用域的修改应用到类中。
+    #+BEGIN_SRC ruby
+    module Shout
+      refine String do
+        def shout 
+          self.upcase + "!!!"
+        end
+      end
+    end
+    class Person
+      attr_accessor :name
+      using Shout
+      def announce
+        puts "Announcing #{name.shout}"
+      end
+    end
+    #+END_SRC
+    这里出现了不提的方法：refnei 和 using，将它们联和起来运用，refine 方法的参数为类名和代码块，在代码块中可以定义用户想让某个类采用的精化行为。
+    这个例子中精化了 String 类，添加了 shout 方法。
+    using 方法拨动了开关，一但使用了精化的模块，那么目标类就会采用这些新的行为。例如在 Person 类中使用了 Shout 模块，意味这在类的周期内，字符串就有了 shout 方法。
+    使用一个精化的影响结束在类定义的结尾处，在类定义中的声明表示真正开始使用次精化。
+    精化能够帮助用户对核心类的使用相对安全的方式进行临时性的修改，在程序的运行时使用其它程序和库将不会使得这些精化的影响。
+** BasicObject 作为祖先类和类
+*** 使用 BasicObject
+    BasciObject 会创建几乎什么功能都没有的对象，这意味着可以教会它所有的任务，而不用担心和已经存在的方法发生冲突。
+    #+BEGIN_SRC ruby
+    class Lister < BasicObject
+      attr_reader :list
+      def initialize
+        @list = ""
+        @level = 0
+      end
+      def indent(string)
+        " " * @level + string.to_s
+      end
+      def method_missing(m, &block)
+        @list << indent(m) + ":"
+        @list << "\n"
+        @level += 2
+        @list << indent(yield(self)) if block
+        @level -= 2
+        @list << "\n|
+        return ""
+      end
+    end
+    #+END_SRC
+* 可调用和可运行对象
+** 匿名基础函数：Proc 类
+   可调用对象的概念表现为：通过接收信息 call 的对象与某些代码关联，并执行这些关联代码获得预期的结果。
+   Ruby 中最主要的可调用对象是 Proc 类，lambda 表达式，方法对象。
+   Proc 类是自包含的代码序列，可以创建，存储，作为参数传递，还可以用 call 执行它。
+*** Proc 对象
+    使用 Proc.new 创建 proc 的实例，通过实例化 Proc 类并包含代码块，创建 Proc 对象。
+    #+BEGIN_SRC ruby
+    pr = Proc.new{ puts "Inside a Proc's block" }
+    pr.call
+    #+END_SRC
+    代码块将变成 proc 的主体，当调用 proc 的时候，代码块将会被执行。今后所有对它的使用方式都只是在这个方案上增加或者变化。
+    proc 是对象。这就意味着可以把它们赋值给变量，放到数组中，作为方法参数传递，并且可以把它们作为其它任何对象一样使用。
+**** proc 和代码块
+     创建一个 Proc 对象，总要提供一个代码块，但是不是每个代码块都可以作为 proc 的主要成分。
+     #+BEGIN_SRC ruby
+     def call_a_proc(&block)
+       block.call
+     end
+     call_a_proc{ puts "I'm the block." }
+     #+END_SRC
+     通过相似的特殊语法，proc 能够代替方法调用时候的代码块。
+     #+BEING_SRC ruby
+     p = Proc.new { |x| puts x}
+     %w{ David Black }.each(&p)
+     #+END_SRC
+***** 语法和对象
+      代码块是句法构造，而不是方法参数，为方法提供参数的问题在于代码块是否独立出现，就象一个参数列表是独立出现还是缺失的。当提供一个代码块时，并不是将代码块作为参数传递给方法，它只是代码块本身而已。
+      它允许代码块作为 proc 被捕获，同时也允许 proc 暂时作为代码块的替身。
+**** 代码块与 proc 互相转换
+     proc 是一个对象，它的任务就是执行之前定义好的代码块。
+     #+BEGIN_SRC ruby
+     def capture_block(&block)
+       block.call
+     end
+     capture_block{ puts "Inside the block."}
+     p = Proc.new{ puts "This is a proc."}
+     capture_block(&p)
+     #+END_SRC
+     使用 proc 代码块的关键在于可以真正的使用它来代替代码块，可以使用&来表明方法在调用时应该要完成代码块的任务。
+     因为使用&的 proc 正在作为代码块被使用，因此不能再将代码发送到同一个方法调用中，否则会发生错误。
+     capture_to_block(&p)中的&可以完成两件事：它触发了对 p 的 to_proc 调用，然后格式 Ruby 将 proc 对象的结果作为代码块的替身。
+**** to_proc 方法概述
+     理论上，任何类或者对象中定义 to_proc 方法，然后这些受影响的对象就可以使用&标记的技术了。
+     对与 to_proc 最有用的两个类是 Proc 和 Symbol,且 to_proc 行为已经被内建在这些类中。
+     #+BEGIN_SRC ruby
+     class Person
+       attr_accessor :name
+       def self.to_proc 
+         Proc.new{|person| person.name }
+       end 
+     end 
+     d = Person.new
+     d.name = David
+     m = Person.new
+     m.name = "Martz"
+     puts [d,m].map(&Person)
+     #+END_SRC
+     to_proc 可以作为一个强大的转换钩子。
+*** Symbol#to_proc 
+    #+BEGIN_SRC ruby
+    %w{david black}.map(&:capitalize)
+    %w{david black}.map{|str| str.capitalize
+    #+END_SRC
+    这两个语句实际上是等价的。符号&:capitalize 被解释为依次发送到数组中每个元素的信息。
+    :capitaliz 是一个符号，&是一个 To_proc 触发器。
+*** proc 作为闭包使用
+    #+BEGIN_SRC ruby
+    def call_some_proc(pr)
+      a = "irrelevant 'a' in method scope"
+      puts a
+      pr.call
+    end 
+    a = "'a' to be used in Proc block"
+    pr = Proc.new{puts a}
+    pr.call
+    call_some_proc(pr)
+    #+END_SRC
+    pr.call 时候调用的 a，并不是方法内部定义的 a，而是 proc 在创建时候定义的 a。
+    携带上下文的那个代码片段称为一个闭包，创建一个闭包就相当于打包一个箱子，无论在哪里打开箱子，它所包含的东西与打包时一致。当打开一个闭包时，它包含的内容就是创建时包含的。
+    闭包非常重要，因为它们能够保存一个程序的部份运行状态。
+*** proc 的实参和形参
+    proc 与方法的不同在于参数的处理方式，因为它们并不关系参数的数量是否正确。
+    它被调用时可以携带任意数量的参数，甚至没有参数，如果调用的时候没有参数，它的单一参数将被设置为 nil。
+    如果调用时多于一个参数，那么定义的参数会被传入，其它参数将会丢弃。
+** 使用 lambda 和->创建函数
+   如同 Proc.new,lambda 方法也会返会一个 Proc 对象。
+   #+BEGIN_SRC ruby
+   lam = lambda{ puts "A lambda!" }   =>   #<Proc: xxxxxxxx(lambda)>
+   #+END_SRC
+   虽然没有 lambda 类的存在，但是 Proc 类有一个独特的 lambda 风格。存在些微不同：
+   首先 lambda 需要明确的创建过程。
+   其次 lambda 和 proc 不同的是它们对待 return 的方式，在 lambda 中的 return 会触发整个 lambda 主体立即退处 lambda 所在代码的上下文。proc 中的 returnz 只会从 proc 被执行所在的方法中返回。
+   最后，lambda 风格的 proc 不能调用的时候使用错误的参数数目。
+*** lambda 构造器
+    #+BEGIN_SRC ruby
+    lam = ->{puts "hi"}
+    mult = ->(x,y){x*y}
+    #+END_SRC
+    如果想要 lambda 带有参数，那就需要将参数放在->之前的圆括号里。
+** 将方法作为对象使用
+   如果要将方法作为对象使用，就需要涉及对象化方法。
+*** 捕获对象方法
+    通过 method 方法，并将方法名作为参数传递给它。
+    #+BEGIN_SRC ruby
+    class C
+      def talk
+        puts "Method-grabbing test, self is #{self}"
+      end
+    end 
+    c = C.new
+    meth = c.method(:talk)
+    #+END_SRC
+    这样，就拥有了一个 method 对象。具体来说是一个绑定的 method 对象。
+    是具体的 talk 方法绑定到了对象 c 上。
+    如果发送 call 给 meth，条件知道要通过 c 扮演 self 的解释来调用自己。
+    也可以将方法从对象上解除绑定，然后绑定到其它对象上，只要其它对象与原始对象是一个类，或者是它的子类。
+    或者可以直接得到某个未绑定的方法。
+    #+BEGIN_SRC ruby
+    unbound = C.instance_method(:talk)
+    #+END_SRC
+    #+BEGIN_SRC ruby
+    class A
+      def a_method
+        puts "Definition in class A"
+      end
+    end
+    class B < A
+      def a_method
+        puts "Definition in class B"
+      end 
+    end
+    class C < B
+    end
+    A.instance_method(:a_method).bind(c).call    #可以使用解绑定操作和绑定操作来仅仅这个问题。
+    class C
+      def call_original
+        A.instance_method(:a_method).bind(c).call
+      end
+    end
+    #+END_SRC
+** eval 方法体系
+   Ruby 也拥有运行时执行以字符串形式存储的代码的工具，
+   这些操作都有相似的原则：在程序启动之前，从程序中读取的任何代码字符串，都会被立即执行。
+*** 使用 eval 执行任意字符串
+    #+BEGIN_SRC ruby
+    print "Method name: "
+    m = gets.chomp
+    eval("def #{m}; puts "Hi"; end"}
+    eval(m)
+    #+END_SRC
+*** eval 的危险
+    字符串中可以被传入破坏性的命令，比如 rm -rf.
+    它所作的事情和动态编程技术中的动态特性相关，运行在编写代码时并不存在的代码字符串。
+    在不确定的时间点上，如果涉及动态生成的字符串，危险就会蔓延。
+*** instanck_eval
+    这是 eval 的特殊形式，它会运行用户指定的字符串或者代码块，同时将 self 改变为 instance_eval 的接收者。
+    #+BEGIN_SRC ruby
+    class Person
+      def initialize(&block)
+        instance_eval(&block)
+      end
+      def name(name = nil)
+        @name ||= name
+      end 
+      def age(age = nil)
+        @age ||= age
+      end 
+    end
+    #+END_SRC
+    这里的关键是调用 instance_eval，它可以重用已经传递到 new 中的代码块，因为在新的 Person 对象中，代码块被传递给 instance_eval 对 name 和 age 的调用被认为在 Person 类中进行的。
+*** class_eval 
+    使用 class_eval 可以作一些不能用成功 class 关键操作的事情。
+    在类的上下文中对字符串求值。
+    打开匿名类的类定义。
+    使用类定义主体中已存在的局部变量。
+    在使用 class 关键字打开一个类的时候，就开启了一个新的局部变量作用域。不过，与 class_eval 一起使用的代码块能够看到创建在与它相同的作用域的变量。
+** 使用线程并执行
+   Ruby 的线程可以让用户通过一种分时技术，在程序中一次为何多个任务，一个线程执行一条或者多条指令，然后将控制权交给下一个线程，依次类推。
+   Thread.new 后跟一个代码块来创建一个线程，在使用一个线程后，还需要使用.join 方法来链接进程。
+   #+BEGIN_SRC ruby
+   puts "Trying to read in some files"
+   t = Thread.new do
+     (0..2).each do |n|
+       begin
+         File.open("part0#{n}") do |f|
+           text << f.readlines
+         end 
+         rescue Errno::ENOENT
+           puts "Message from thread: Failed on n = #{n}"
+           Thread.exit
+         end
+       end
+     end 
+   end
+   t.join
+   puts "Finished!"
+   #+END_SRC
+   也可以通过停止或者开始线程来检查它的状态。
+*** 基于线程实现的日期服务器
+    #+BEGIN_SRC ruby
+    require 'socket'
+    def welcome(chatter)
+      chatter.print "welcome! Please enter your name: "
+      chatter.readline.chomp
+    end 
+    de broadcast(message, chatters)
+      chatter.each do |chatter|
+        chatter.puts message
+      end 
+    end
+    
+    s = TCPServer.new(3393)
+    chatters = []
+    while(chatter = s.accept)
+      Thread.new(chatter) do |c|
+        name = welcome(chatter)
+        broadcast("#{name} has joined",chatters)
+        chatters << chatter
+        begin
+          loop do
+            line = c.readline
+            broadcast("#{name}: #{line}", chatters)
+          end 
+        rescue EORError
+          c.close
+          chatters.delete(c)
+          broadcast("#{name} has left", chatter)
+        end 
+      end 
+    end
+    #+END_SRC
+*** 线程与变量
+    不能让线程中对应$1 的使用，覆盖不同线程中$1 的使用。
+    如果创建一个局部变量，然后在线程的代码块中改变它，这个改变会是永久的。
+*** 操作线程键
+    线程键是一个用于存储线程特性值的散列，这些键必须为符号或者字符串。
+    #+BEGIN_SRC ruby
+    t = Thread.new do
+      Thread.current[:message] = "Hello"
+    end
+    t.join
+    p t.keys
+    puts t[:message]
+    #+END_SRC
+** 从 Ruby 内部发储系统命令
+*** system 方法和反引号
+    system 方法可以用于调用系统命令，而反引号可以调用系统程序然后返会它的输出结果。
+*** open 与 popen3
+    使用这两个命令可以和外部程序进行通信。
+    #+BEGIN_SRC ruby
+    require 'open3'
+    stdin, stdout, stderr = Open.popen3("cat")
+    t = Thread.new do
+      loop{stdin.puts gets}
+    end
+    u = Thread.new do
+      n = 0
+      str = ""
+      loop do
+        str << stdout.gets
+        n += 1
+        if n%3 ==0
+        puts "----------------\n"
+        puts str
+        puts "----------------\n"
+        str = ""
+      end
+    end
+    t.join
+    u.join
+    #+END_SRC
+* 回调，钩子和运行时自省
+** 回调和钩子
+   回调和钩子是最为普通的元编程技术 。
+   在 ruby 程序执行期间出现特定的事件，这些方法就会被调用。
+   + 对象中不存在的方法被调用时。
+   + 模块混合到类或者其它模块时。
+   + 对象中通过模块扩展时。
+   + 类被继承时。
+   + 引用被指向不存在的常量时。
+   + 实例变量被添加到类时。
+   + 单例方法被添加到对象时。
+   列表中的每个事件，都可以编写一个回调方法用于在事件发生时执行。这些回调方法是基于独立对象或者独立类而不是全局的。
+*** 使用 method_missing 拦截不可识别的信息
+**** 使用 method_missing 实现委托
+     #+BEGIN_SRC ruby
+     class Cookbook
+       attr_accessor :title, :author
+       def initialize
+         @recipes = []
+       end 
+       def method_missing(m, *args, &block)
+         @recipes.send(m *args, &block)
+       end 
+     end
+     cb = Cookbook.new
+     cb << recipe_for_cake
+     cb << recipe_for_chicken
+     beef_dishes = cb.select{|recipes| recipe.main_ingredient == "beef"}
+     #+END_SRC
+     Cookbook 的实例并没有<<和 select 方法，因此这信息会因为 method_missing 被传递到@recipes 数组中，仍然可以在 Cookbook 中定义任何方法。
+**** 源头：BasicObject#method_missing
+     在 BasicObject 中的 method_missing 是定义在类体系树中非常顶层的方法之一。
+     有两个方法可以覆盖默认的 method_missing，首先可以打开 BasicObject 类，然后再次定义 method_missing。 第二种更为通用的技术，在最顶层定义 method_missing 方法，然后给它作为私有的实例方法装入。
+     如果使用第二种技术，那么除了 BasicObject 的真正实例之外的所有对象都会找到这个 method_missing 的新版本方法。
+     #+BEGIN_SRC ruby
+     def method_missing(m, *args, &block)
+       raise NameError, "What on earth do you mean by #{m}?"
+     end
+     #+END_SRC
+     如果想将它转到 BasicObject 的版本种，可以在新版本的方法中调用 super。
+**** method_missing, respond_to? and respond_to_missing?
+     #+BEGIN_SRC ruby
+     class Person
+       attr_accessor :name, :age
+       def initialize(name, age)
+         @name, @age = name, age
+       end
+       def method_missing(m, *args, &block)
+         if /set_(.*)/.match(m)
+           self.send("#{$1}=", *args)
+         else
+           super
+         end
+       end
+     end
+     person = Person.new("David", 54)
+     person.set_age(55)
+     p person.age                    => 55
+     p oerson.respond_to?(set_age)   => false
+     class Person
+       def respond_to_missing(m, include_private = false)
+         /set_/.match(m) || super
+       end
+     end
+     p person.respond_to?(set_age)   =>false
+     #+END_SRC
+     通过使用 respond_to?的第二个参数，就可以控制查询是否要包含私有方法。第二个参数将会被传递到 respond_to_missing?方法中，它默认为 false
+     首先直接通过 respond_to?方法，但是对象不能响应它。
+     而后通过定义 renspnd_to_missing?方法，就可以让 method_missing 和 respond_to?产生一致的效果，使内部方法变得可见。
+*** 捕获 include 集合 prepend 操作
+    如果读者想要捕获这些事件即当它们发生时触发回调，那么可以定义特殊得方法 included 和 prepended，这两个方法可以包含或前置时得类或模块名作为单一得参数。
+    #+BEGIN_SRC ruby
+    module M
+      def self.included(c)
+        puts "I have just been mixed into #{c}."
+      end
+    end
+    class C
+      include M
+    end
+    #+END_SRC
+    当 M 被包含到 c 时，可以看到 m.included 执行得结果，这个模块拦截了自己被包含的事件。
+    想要通过混合模块并添加实例方法的同时，添加类方法到类中。
+    #+BEGIN_SRC ruby
+    module M
+      def self.include(c1)
+        def c1.a_class_method
+          puts "Now the class has a new class method."
+        end
+      end
+    end
+    class C 
+      include M
+    end
+    c = C.new
+    c.a_class_method
+    #+END_SRC
+    当类包含模块时，有两件事情发生，第一，实例方法会出现在类的实例内， 第二，由于 M 的 include 回调方法，类方法 a_class_method 被定义到了类对象 C 中。
+*** 拦截 extend
+    使用 Module#extended 方法，可以间立一个回调方法，只要对象执行其所包含的模块的 extend 操作，就可以触法回调执行。
+    #+BEGIN_SRC ruby
+    module M
+      def self.extend(obj)
+        puts "Module #{self} is being used by #{obj}."
+      end
+      def an_inst_method
+        puts "This Module supplies this instance method."
+      end
+    end
+    my_object = Object.new
+    my_object.extend(M)
+    my_object.an_inst_method
+    #+END_SRC
+    事实上，通过 extend 使用模块扩展对象与通过 include 包含模块对与对象的单例类来说，都是一样的，无论使用哪种方式，仅仅都是模块回被添加到对象的方法查找路径中，且刚好在查找链中的对象的单例类之后。
+    但是这两个操作会触发不同的回调方法。
+*** 使用 Class#inherited 拦截继承事件。
+    可以通过为类定义 inherited 方法与类继承事件挂钩，如果在指定类中定义了 inherited 那么继承该类时，inherited 会使用新类名作为调用的参数。
+    #+BEGIN_SRC ruby
+    class C
+      def self.inherited(subclass)
+        puts "#{self} just got subclassed by #{subclass}."
+      end
+    end
+    class D < C
+    end                              => C just subclassed by D
+    #+END_SRC
+    这个方法会被子类所继承。
+*** Module#const_misssing
+    在给定的模块中，只要引用不可识别的常量，该方法就会被调用。
+*** method_added 方法和 singleton_method_added 方法和 singleton
+    在给类/单例类定义任意的实例方法时调用。
+    #+BEGIN_SRC ruby
+    class C
+      def self.method_added(m)
+        pust "Method #{m} was just defined."
+      end
+      def a_new_method
+      end
+    end
+    #+END_SRC
+    singleton_method_added 回调与 method_added 方法所作的事情相同，不过针对的时单例方法。它触发的是它自己。
+** 拦截针对对象能力的查询
+*** 列出对象的非私有方法
+    如果要列出对象的非私有方法，可以使用 methods 方法，它可以返回一个符号的数组。
+*** 列出私有和受保护方法
+    private_methods or protected_methods
+    私有方法几乎都定义在 Kernel 模块中，其次是定义在 BasicObject 中。
+*** 获得类和模块的实例方法。
+    类和模块拥有的是一组加强版的用于方法查询的方法集合。
+    + instance_methods 返回所有公有和受保护的实例方法。
+    + public_instance_methods 返回所有公有的实例方法。
+    + protected_instance_methods 和 private_instance_methods 分别返回受保护的和私有的实例方法。
+    调用这些方法时，都可以传递一个可选参数。如果传递的参数为 false,那么返回的列表中的方法仅仅包含定义在所查询的类和模块中的方法。
+    如下例：获得所有 Enumerable 中被覆盖过的方法。
+    #+BEGIN_SRC ruby
+    overrides = {}
+    enum_classes = ObjectSpace.each_object(Class).select do |c|
+      c.ancestors.include?(Enumerable)
+    end
+    enum_classes.sort_by{ |c| c.name}.each do |c|
+      overrides[c] = c.instance_methods(false) &
+                     Enumerable.instance_methods(false)
+    end
+    overrides.delete_if{ |c, methods| methods.empty?}
+    overrides.each do |c, method|
+      puts "Class #{c} overrides: #{methods.join(",")} "
+    end
+    #+END_SRC
+** 变量和常量的自省机制
+   Ruby 可以让用户在运行时的特定时间点上，访问变量和常量的许多信息。可以得到的列表包含：
+*** 局部和全局变量
+    使用顶层方法：local_variables and global_variables
+*** 实例变量
+    instance_variables
+** 执行追踪
+*** caller
+    caller 方法可以追踪函数调用的函数栈，打印出调用链。
+** 回调方法和审查的实践
+   #+BEGIN_SRC ruby
+   require_relative 'callertools'
+   class MicroTest
+     def self.inherited(c)
+       c.class_eval do
+         def self.method_added(m)
+           if m =~/^test/
+             obj = self.new
+             if self.instanc_methods.include(:setup)
+               obj.setup
+             end
+             obj.send(m)
+           end
+         end
+       end
+     end
+     def assert(assertion)
+       if assertion
+         puts "Assertion passed"
+         true
+       else
+         puts "Assertion failed:"
+         stack = CallerTools::Stack.new
+         failture = stack.find{|call| call.meth !~/assert/ }
+         put failture
+         false
+       end
+     end
+     def assert_equal(expected, actual)
+       result = assert(expected == actural)
+       puts "(#{actual} is not #{expected})" unless result
+       result
+     end
+   end
+   #+END_SRC
+** 钩子函数
+   钩子实际上是一个处理信息的程序段，通过系统调用，将它挂入系统，每当特定的信息发出，在没有到达目的窗口前，钩子函数就先捕获这个信息。
+   即是钩子函数先得到控制权。这时钩子函数可以加工处理该信息，也可以不处理直接传递。
+   钩子函数严格算回调函数的一种，但是钩子函数是针对性的截取的。当使用了钩子函数之后，每当触发到相对应的信息，系统就会先执行你所写的回调函数。
