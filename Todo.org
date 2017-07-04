@@ -8,9 +8,12 @@
 **** TODO Ruby CookBook
 **** TODO Ruby 元编程_second
 **** TODO Eloquent Ruby
+**** TODO Ruby_Under_A_MicroScope
 *** TODO Rails
-**** TODO The_Rails_Tutorial
-**** TODO Rails 101
+**** DONE The_Rails_Tutorial
+     CLOSED: [2017-07-01 Sat 09:10]
+**** DONE Rails 101
+     CLOSED: [2017-07-04 Tue 15:11]
 **** TODO The_Rails_4_Way
 **** TODO Learn_Web_Development_With_The_Ruby_On_Rails_Tutorial
 *** TODO HTML_and_CSS
