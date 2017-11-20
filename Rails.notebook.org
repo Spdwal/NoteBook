@@ -1,0 +1,117 @@
+* rails 环境设定
+** 安装 ruby
+   sudo dnf install ruby
+** rvm 使用
+*** 安装 rvm
+    gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+	  \curl -sSL https://get.rvm.io | bash -s stable
+*** RVM 使用
+**** 安装 ruby
+     rvm install ruby [版本号]
+**** 列出可以安装的列表：
+     rvm list known
+**** 更新已支援的版本：
+     rvm get master
+**** 查看已经安装的版本
+     rvm list
+**** 切换 ruby 版本
+     rvm use [版本号]
+     注意，使用 rvm 指定的 ruby 版本在每次开启新的终端时会变回预设版本。
+**** 指定默认 ruby 版本
+     rvm [版本号] --default
+**** 切换回系统内建版本
+     rvm system
+**** 移除某个版本的 ruby
+     rvm uninstall 2.4.1
+**** 原理
+     RVM 其实是把不同版本的 ruby 安装在.rvm 目录下，在切换 ruby 的时候，rvm 会修改 ruby 的 PATH。
+** 安装 rails
+   gem install rails
+   rails 本质上也是一个 gem。
+* rails 使用
+** 建立项目
+   rails new name
+*** 运行项目
+    bin/rails server
+    最好使用 bin/rails，因为 ruby 的各种套件可能有不同的版本。
+    Rails 在 bin 目录里帮我们预先装好了好几个档案，称之为 binstub。
+*** 建立脚手架
+    bin/rails generate scaffold [name] [elementName]:[type]
+    除了 string 类型外，其它类型不能省略。
+*** 数据迁移
+    bin/rails db:migrate
+    每次产生了新的迁移档，都需要重新迁移。
+*** 销毁档案
+    bin/rails destroy
+*** 直接进入资料库
+    bin/rails dbconsole
+** gems 使用
+   gem "rails", "5.0.1"
+   指明版本
+   gem 'uglifier' , '>= 1.3.0'
+   大于或者等于 1.3.0 版本。
+   gem 'coffee-rails', '~>4.1.0'
+   4.2 以下 4.1 以上的最新版本
+* MVC 初步
+** routes
+   get "/posts", to: "posts#index"
+   当用户输入/posts 这个网址，会交给 posts#index 来处理
+   get "/posts/:id", to: "posts#show"
+   当用户输入/posts/1 时，它会转到 posts#show 方法，并把 123 当参数传入 COntroller
+   并不是所有的 HTTPRequest 都会镜过 Route，如果放在专案的 public 目录里的档案是不用经过 route 的。
+   如果有两个并存的 routes，则先查到的会失效。
+*** 转址
+    get '/users', to: redirect('/accounts')
+    可以把/users 转往/accounts，除了站内网址，也可以转到外部网站。
+*** resoucres
+    rsources :users 
+    rails 做出 8 条不同的路由，并且对应到 controller 的 7 个方法。
+    如果不需要这么多路由的话，可以使用 only
+    resources :products, only: [:index, :show]
+    或者也可以使用 except，效果刚好相反。
+*** prefix
+    prefix 后面接上_path 或者_url 就会变成相对的 ViewHelper，站内链接，通常使用 path，
+    但是使用_url 则会产生完整的路经。
+*** resource 进阶
+    resource :profile
+    单数路由不会做出含有:id 的路经。
+    而且没有 index 路由。
+    嵌套路由可以这样写：
+    resoureces :users do
+      resoureces :posts
+    end
+    可以在路由里多包方法
+    resoucres :orders do
+      collection do
+        get :cancelled
+      end
+    end
+    会在 orders 下多出一个路由
+    cancelled_orders,并指向 orders#cancelled 这个 Action。
+    如果需要自定义的路由里需要:id 存在，那么可以使用 memeber 方法
+    resoureces :orders do
+      member do
+        post :confirm
+        delete :cancel
+      end
+    end
+    使用 member 产生的路经，会带有:id 在里面，这个:id 会传到 Controller 里变成 params 的一部分。
+*** namespace
+    可以使用 namespace 将路由包起来
+    namespace :admin do
+      resources :products
+      resources :articles
+    end
+** Controller
+   Controller 的命名会根据 Route 是使用复数的还是单数的 resource 而定。
+*** 新增 Controller
+    bin/rails g controller pages
+    COntroller 的 action 对应路由的方法。
+*** params 参数
+    params 参数是一个 json，被整理成一个类似 hash 的东西。
+
+    
+    
+    
+    
+    

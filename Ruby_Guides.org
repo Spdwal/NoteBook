@@ -1,0 +1,60 @@
+* Acitive Record
+  AvtiveRecord 是 MVC 中的模型，负责处理数据和业务逻辑。负责创建和使用需要持久存入数据库中的数据。
+** 用作 ORM 框架 ActiveRecord
+   + 表示模型和其中的数据。
+   + 表示模型之间的关系。
+   + 通过相关联的模型表示继承层次结构。
+   + 持久存入数据库之前，验证模型。
+   + 以面向对象的方式处理数据库操作。
+** 多约定，少配置
+*** 命名约定
+    数据库表名：复数，下划线分隔单词
+    模型类名：单数，每个单词的首字母大写
+*** 模式约定
+    外键：使用 singularized_table_name_id 形式命名
+    主键：默认情况下，会使用整数字段 id 作为表的主键
+    还有一些可选的字段
+    + created_at：创建记录时，自动设定为当前的日期和时间
+    + update_at：更新记录的时间
+    + lock_version：在模型中添加乐观锁：
+      + 乐观锁：提交事务之前，大家可以各自修改数据，但是在提交事务的时候，如果这个过程中
+        数据发生了改变，那么拒绝此次事务的提交。乐观锁适和在资源争用不激烈的时候使用。
+      + 悲观锁：事务开始之前取尝试获得写权限，事务结束后释放锁，也就是说对与同一行记录，只有一个写事务可以并行
+        在资源争用比较激烈时候使用。
+    + type：让模型使用单表继承。
+    + (association_name)_type：存储多态关联的类型
+    + (table_name)_count：缓存所关联对象的数量。
+** 创建 ActiveRecord 模型
+   只需要继承 ApplicationRecord 类就可以了。
+   rails generate model product 既可。
+** 覆盖命名约定
+   #+BEGIN_SRC Rails
+   class Product < ApplicationRecord
+     self.table_name = "my_product"
+   end
+   #+END_SRC
+   同时也需要手动指定固件的类名：
+   #+BEGIN_SRC Rails
+   class ProductTest < ActiveSupport:TestCase
+     set_fixture_class my_products: Product
+     fixtures :my_products
+   end
+   #+END_SRC
+** CRUD 读写数据
+   new 创建一个新对象
+   create 创建新对象，并将其存入数据库
+   如果在 create 和 new 方法中使用块，会把新创建的对象拉入块中，初始化对象。
+   更新一个对象可以直接赋值然后 save 或者直接使用 update 方法。
+   如果想批量更新多个记录，可以使用类方法 update_all
+   删除记录直接调用 destroy 方法。
+** 数据验证
+  可以使用 validates 方法进行数据验证。
+* ActiveRecord 迁移
+** 迁移概述
+   迁移是以一致和轻松的方式按照时间顺序修改数据库模式的实用方法。
+   可以把迁移看作数据库的新版本。数据库模式一开始并不包含任何内容。
+   之后通过迁移来添加或者删除数据表，字段和记录。
+   数据段中，timestamps 宏添加了 create_at 和 update_at 两个字段。
+   如果想完成一些 ActiveRecord 不知怎么撤消的可以使用 reversible 方法。
+   或者使用 up 和 down 方法来代替 change 方法。
+   

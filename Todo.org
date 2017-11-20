@@ -17,7 +17,8 @@
 **** TODO The_Rails_4_Way
 **** TODO Learn_Web_Development_With_The_Ruby_On_Rails_Tutorial
 *** TODO HTML_and_CSS
-**** Head_First_HTML_and_CSS_second
+**** DONE Head_First_HTML_and_CSS_second
+     CLOSED: [2017-07-07 Fri 19:25]
 *** TODO JS
 **** TODO JavaScript_The_Definitive_Guide
 **** TODO Learning_JQuery_Fourth_Edition
@@ -76,7 +77,8 @@
 *** TODO Pro_Git
 *** TODO 重构
 *** TODO 程序员的修练之道
-*** TODO Structure_And_Interpretation_Of_Computer_Programs
+*** DONE Structure_And_Interpretation_Of_Computer_Programs
+    CLOSED: [2017-09-22 Fri 17:37]
 *** TODO Programming_Language_Pragmatics
 *** TODO Programming_Pearls_Second_Edition
 *** TODO The_Mythical_Man_Month
